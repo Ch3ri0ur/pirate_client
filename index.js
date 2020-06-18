@@ -33,9 +33,9 @@ app.get("/stream", (req, res) => {
 
 
     parser.on('data', (data) => {
-        if (data.startsWith("I")) {
-            console.log(data)
-            return
+        if (data.startsWith('I')) {
+            console.log(data);
+            return;
         }
         console.log(JSON.stringify(Date.now() + "," + data))
         //   socket.emit("measurements", Date.now() + "," + data)

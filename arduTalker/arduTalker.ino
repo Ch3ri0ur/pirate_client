@@ -11,14 +11,16 @@
 
 // defines variables
 long duration; // variable for the duration of sound wave travel
-int distance; // variable for the distance measurement
+int distance;  // variable for the distance measurement
 
-void setup() {
+void setup()
+{
   pinMode(trigPin, OUTPUT); // Sets the trigPin as an OUTPUT
-  pinMode(echoPin, INPUT); // Sets the echoPin as an INPUT
-  Serial.begin(115200); // // Serial Communication is starting with 9600 of baudrate speed
+  pinMode(echoPin, INPUT);  // Sets the echoPin as an INPUT
+  Serial.begin(115200);     // // Serial Communication is starting with 9600 of baudrate speed
 }
-void loop() {
+void loop()
+{
   // Clears the trigPin condition
   digitalWrite(trigPin, LOW);
   delayMicroseconds(2);
@@ -33,41 +35,44 @@ void loop() {
   // Displays the distance on the Serial Monitor
   Serial.print(distance);
   Serial.print(",");
-  Serial.print(distance/2);  
+  Serial.print(distance / 2);
   Serial.print(",");
-  Serial.print(distance+5);
+  Serial.print(distance + 5);
   Serial.print(",");
-  Serial.println(distance-5);
+  Serial.println(distance - 5);
   delay(100);
   char control = 0;
-  while(Serial.available() > 0){
+  while (Serial.available() > 0)
+  {
     String input = Serial.readStringUntil('T');
     Serial.println("I" + input);
-    if(input == "foo"){
+    if (input == "foo")
+    {
       //do stuff...
     }
   }
+
   if (Serial.available())
   {
     control = Serial.read(); //reads serial input
   }
-   switch (control)
+  switch (control)
   {
-    case '0':     //moves forward
-      Serial.println(F("Forward"));
-      // reset delay time so we;re not going to stop after 2 second
-      break;
-    case '1':      //left
-      Serial.println(F("Left"));
-      // reset delay time so we;re not going to stop after 2 second
-      break;
-    case '2':      //right
-      Serial.println(F("Right"));
-      // reset delay time so we;re not going to stop after 2 second
-      break;
-    case '3':     //backward
-      Serial.println(F("Backward"));
-      // reset delay time so we;re not going to stop after 2 second
-      break;
-  }    
+  case '0': //moves forward
+    Serial.println(F("Forward"));
+    // reset delay time so we;re not going to stop after 2 second
+    break;
+  case '1': //left
+    Serial.println(F("Left"));
+    // reset delay time so we;re not going to stop after 2 second
+    break;
+  case '2': //right
+    Serial.println(F("Right"));
+    // reset delay time so we;re not going to stop after 2 second
+    break;
+  case '3': //backward
+    Serial.println(F("Backward"));
+    // reset delay time so we;re not going to stop after 2 second
+    break;
+  }
 }
