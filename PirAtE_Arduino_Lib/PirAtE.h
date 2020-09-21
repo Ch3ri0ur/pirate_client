@@ -77,8 +77,13 @@ byte PirAtE_MSG_DELIMITER[PirAtE_MSG_DELIMITER_LENGTH] = {0xff,'P','i','r','A','
 #define PirAtE_CHARARRAY_END_LENGTH 1
 #define PirAtE_CHARARRAY_END '\0'
 
+//Request
 #define PirAtE_REQUEST_DATA_LENGTH 1
 #define PirAtE_REQUEST_DATA 0x29
+
+//Debug
+#define PirAtE_DEBUG_MSG_LENGTH 1
+#define PirAtE_DEBUG_MSG 0x28
 
 //ID of DATA
 #define PirAtE_MSG_DATAID_LENGTH 1
@@ -107,21 +112,20 @@ byte PirAtE_MSG_DELIMITER[PirAtE_MSG_DELIMITER_LENGTH] = {0xff,'P','i','r','A','
 
 //Byte
 #define PirAtE_MSG_DATATYPE_BYTE 'B'
-#define PirAtE_MSG_DATATYPE_BYTE_LENGTH 1
+#define PirAtE_MSG_DATATYPE_BYTE_LENGTH sizeof(byte)
 //Word
 #define PirAtE_MSG_DATATYPE_WORD 'W'
-#define PirAtE_MSG_DATATYPE_WORD_LENGTH 2
+#define PirAtE_MSG_DATATYPE_WORD_LENGTH sizeof(word)
 
 //Bool '0' or '1'
 #define PirAtE_MSG_DATATYPE_BOOL 'b'
-#define PirAtE_MSG_DATATYPE_BOOL_LENGTH 1
+#define PirAtE_MSG_DATATYPE_BOOL_LENGTH sizeof(byte)
 //Char 1 Length
 #define PirAtE_MSG_DATATYPE_CHAR 'C'
-#define PirAtE_MSG_DATATYPE_CHAR_LENGTH 1
+#define PirAtE_MSG_DATATYPE_CHAR_LENGTH sizeof(char)
 //String,CharArray
 #define PirAtE_MSG_DATATYPE_STRING 'S'
 #define PirAtE_MSG_DATATYPE_STRING_MAXLENGTH (PirAtE_MSG_DATA_MAXLENGTH-PirAtE_CHARARRAY_END_LENGTH)
-
 
 //Offset of actual Data to DataMsg Start
 #define PirAtE_MSG_DATA_OVERHEAD (PirAtE_MSG_DATAID_LENGTH + PirAtE_MSG_DATATYPE_LENGTH)
@@ -141,6 +145,13 @@ int PirAtE_SEND_MSG_Index = 0;
 #define PirAtE_START_COM()\
 {\
   PirAtE_ComType_Serialfunc.begin(PirAtE_Serial_Baudrate);\
+}
+
+#define PirAtE_SEND_DEBUG_MAKRO(Msg)\
+{\
+  PirAtE_ComType_Serialfunc.write(PirAtE_DEBUG_MSG);\
+  PirAtE_ComType_Serialfunc.print(Msg);\
+  PirAtE_ComType_Serialfunc.write(PirAtE_MSG_DELIMITER, PirAtE_MSG_DELIMITER_LENGTH);\
 }
   
 #define PirAtE_DEFINE_SENDMSG_MAKRO(PirAtE_MSG_ID,PirAtE_MSG_DATATYPE, Global_VariableAdress)\
