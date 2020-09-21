@@ -11,9 +11,9 @@ void setup() {
   // put your setup code here, to run once:
   delay(1000);
   PirAtE_START_COM()
-  PirAtE_DEFINESENDMSG_MAKRO(0,PirAtE_MSG_DATATYPE_INT, &data)
-  PirAtE_DEFINESENDMSG_MAKRO(1,PirAtE_MSG_DATATYPE_INT, &data2)
-  PirAtE_DEFINERECEIVEMSG_MAKRO(0,PirAtE_MSG_DATATYPE_INT, &data2)
+  PirAtE_DEFINE_SENDMSG_MAKRO(0,PirAtE_MSG_DATATYPE_INT, &data)
+  PirAtE_DEFINE_SENDMSG_MAKRO(1,PirAtE_MSG_DATATYPE_INT, &data2)
+  PirAtE_DEFINE_RECEIVEMSG_MAKRO(0,PirAtE_MSG_DATATYPE_INT, &data2)
 }
 
 void loop() {

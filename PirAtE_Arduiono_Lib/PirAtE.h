@@ -143,7 +143,7 @@ int PirAtE_SEND_MSG_Index = 0;
   PirAtE_ComType_Serialfunc.begin(PirAtE_Serial_Baudrate);\
 }
   
-#define PirAtE_DEFINESENDMSG_MAKRO(PirAtE_MSG_ID,PirAtE_MSG_DATATYPE, Global_VariableAdress)\
+#define PirAtE_DEFINE_SENDMSG_MAKRO(PirAtE_MSG_ID,PirAtE_MSG_DATATYPE, Global_VariableAdress)\
 {\
   PirAtE_DATA_SEND_ADRESSES[PirAtE_MSG_ID] = (byte*) Global_VariableAdress;\
   switch (PirAtE_MSG_DATATYPE)\
@@ -255,7 +255,7 @@ byte PirAtE_DATA_RECEIVE_DATATYPE_MASK[PirAtE_ReceiveMsg_Amount];
 byte PirAtE_RECEIVE_DATA_MASK[PirAtE_ReceiveMsg_Amount/8 + (PirAtE_ReceiveMsg_Amount%8?1:0)];
 byte PirAtE_DATA_RECEIVE_BUFFER[PirAtE_Serial_Buffer_Size];
 
-#define PirAtE_DEFINERECEIVEMSG_MAKRO(PirAtE_MSG_ID,PirAtE_MSG_DATATYPE, Global_VariableAdress)\
+#define PirAtE_DEFINE_RECEIVEMSG_MAKRO(PirAtE_MSG_ID,PirAtE_MSG_DATATYPE, Global_VariableAdress)\
 {\
   PirAtE_DATA_RECEIVE_ADRESSES[PirAtE_MSG_ID] = (byte*) Global_VariableAdress;\
   switch (PirAtE_MSG_DATATYPE)\
