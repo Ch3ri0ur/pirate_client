@@ -90,11 +90,9 @@ parser.on('data', (buffer) => {
     let data = buffer.slice(1);
     if (controlbyte == 77) {
         // M Debug Message
-        //console.log('Debug: ' + data.toString());
+        console.log('Debug: ' + data.toString());
     } else if (controlbyte == 82) {
         // R Request Data
-        // l = 'P'.charCodeAt(0)
-        // k = String.fromCharCode(0x15)
         // console.log("request")
         if (Object.entries(arduinoSendBuffer).length !== 0) {
             entry = Object.entries(arduinoSendBuffer)[0];
@@ -152,10 +150,10 @@ parser.on('data', (buffer) => {
             console.log(buf);
             port.write(buf);
         } else {
-            console.log("nothing to send")
+            console.log('nothing to send');
             let buf = Buffer.alloc(1);
             buf[0] = 0x29;
-            port.write(buf)
+            port.write(buf);
         }
         // port.write(Buffer(0x0)); //deprecation warning use the Buffer.alloc(), Buffer.allocUnsafe(), or Buffer.from() methods instead.
     } else {

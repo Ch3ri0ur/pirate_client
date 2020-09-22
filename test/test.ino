@@ -1,5 +1,7 @@
 #define PirAtE_SendMsg_Amount 11
 #define PirAtE_ReceiveMsg_Amount 11
+#define PirAtE_AllowedReceiveBlockTime_micros 1000000ul
+#define PirAtE_ReceiveMSGInterVal_micros 1000ul
 
 #include "PirAtE.h"
 
@@ -38,17 +40,17 @@ char rstringy[15] = "returnoino";
 
 void setup()
 {
-  PirAtE_DEFINE_SENDMSG_MAKRO(0, PirAtE_MSG_DATATYPE_INT, &inty);
-  PirAtE_DEFINE_SENDMSG_MAKRO(1, PirAtE_MSG_DATATYPE_UINT, &uinty);
-  PirAtE_DEFINE_SENDMSG_MAKRO(2, PirAtE_MSG_DATATYPE_LONG, &longy);
-  PirAtE_DEFINE_SENDMSG_MAKRO(3, PirAtE_MSG_DATATYPE_ULONG, &ulongy);
-  PirAtE_DEFINE_SENDMSG_MAKRO(4, PirAtE_MSG_DATATYPE_FLOAT, &floaty);
-  PirAtE_DEFINE_SENDMSG_MAKRO(5, PirAtE_MSG_DATATYPE_DOUBLE, &doubley);
-  PirAtE_DEFINE_SENDMSG_MAKRO(6, PirAtE_MSG_DATATYPE_BYTE, &bytey);
-  PirAtE_DEFINE_SENDMSG_MAKRO(7, PirAtE_MSG_DATATYPE_WORD, &wordy);
-  PirAtE_DEFINE_SENDMSG_MAKRO(8, PirAtE_MSG_DATATYPE_BOOL, &booly);
-  PirAtE_DEFINE_SENDMSG_MAKRO(9, PirAtE_MSG_DATATYPE_CHAR, &chary);
-  PirAtE_DEFINE_SENDMSG_MAKRO(10, PirAtE_MSG_DATATYPE_STRING, &stringy);
+  PirAtE_DEFINE_SENDMSG_MAKRO(0, PirAtE_MSG_DATATYPE_INT, &inty, PirAtE_MSG_SENDMODE_AUTO);
+  PirAtE_DEFINE_SENDMSG_MAKRO(1, PirAtE_MSG_DATATYPE_UINT, &uinty, PirAtE_MSG_SENDMODE_AUTO);
+  PirAtE_DEFINE_SENDMSG_MAKRO(2, PirAtE_MSG_DATATYPE_LONG, &longy, PirAtE_MSG_SENDMODE_AUTO);
+  PirAtE_DEFINE_SENDMSG_MAKRO(3, PirAtE_MSG_DATATYPE_ULONG, &ulongy, PirAtE_MSG_SENDMODE_AUTO);
+  PirAtE_DEFINE_SENDMSG_MAKRO(4, PirAtE_MSG_DATATYPE_FLOAT, &floaty, PirAtE_MSG_SENDMODE_AUTO);
+  PirAtE_DEFINE_SENDMSG_MAKRO(5, PirAtE_MSG_DATATYPE_DOUBLE, &doubley, PirAtE_MSG_SENDMODE_AUTO);
+  PirAtE_DEFINE_SENDMSG_MAKRO(6, PirAtE_MSG_DATATYPE_BYTE, &bytey, PirAtE_MSG_SENDMODE_AUTO);
+  PirAtE_DEFINE_SENDMSG_MAKRO(7, PirAtE_MSG_DATATYPE_WORD, &wordy, PirAtE_MSG_SENDMODE_AUTO);
+  PirAtE_DEFINE_SENDMSG_MAKRO(8, PirAtE_MSG_DATATYPE_BOOL, &booly, PirAtE_MSG_SENDMODE_AUTO);
+  PirAtE_DEFINE_SENDMSG_MAKRO(9, PirAtE_MSG_DATATYPE_CHAR, &chary, PirAtE_MSG_SENDMODE_AUTO);
+  PirAtE_DEFINE_SENDMSG_MAKRO(10, PirAtE_MSG_DATATYPE_STRING, &stringy, PirAtE_MSG_SENDMODE_AUTO);
 
   PirAtE_DEFINE_RECEIVEMSG_MAKRO(0, PirAtE_MSG_DATATYPE_INT, &rinty);
   PirAtE_DEFINE_RECEIVEMSG_MAKRO(1, PirAtE_MSG_DATATYPE_UINT, &ruinty);
@@ -102,26 +104,37 @@ void loop()
   delay(100);
   PirAtE_SEND_DEBUG_MAKRO(inty);
   delay(100);
-  switch (control)
-  {
-  case 'w': //moves forward
-    PirAtE_SEND_DEBUG_MAKRO("got w");
-    // reset delay time so we;re not going to stop after 2 second
-    break;
-  case 'a': //left;
-    PirAtE_SEND_DEBUG_MAKRO("got a");
-    // reset delay time so we;re not going to stop after 2 second
-    break;
-  case 's': //right
-    PirAtE_SEND_DEBUG_MAKRO("got s");
-    // reset delay time so we;re not going to stop after 2 second
-    break;
-  case 'd': //backward
-    PirAtE_SEND_DEBUG_MAKRO("got d");
-    // reset delay time so we;re not going to stop after 2 second
-    break;
-  }
+  PirAtE_SEND_DEBUG_MAKRO(rinty);
+  PirAtE_SEND_DEBUG_MAKRO(ruinty);
+  PirAtE_SEND_DEBUG_MAKRO(rlongy);
+  PirAtE_SEND_DEBUG_MAKRO(rulongy);
+  PirAtE_SEND_DEBUG_MAKRO(rfloaty);
+  PirAtE_SEND_DEBUG_MAKRO(rdoubley);
+  PirAtE_SEND_DEBUG_MAKRO(rbytey);
+  PirAtE_SEND_DEBUG_MAKRO(rwordy);
+  PirAtE_SEND_DEBUG_MAKRO(rbooly);
+  PirAtE_SEND_DEBUG_MAKRO(rchary);
+  PirAtE_SEND_DEBUG_MAKRO(rstringy);
 }
+//   switch (control)
+//   {
+//   case 'w': //moves forward
+//     PirAtE_SEND_DEBUG_MAKRO("got w");
+//     // reset delay time so we;re not going to stop after 2 second
+//     break;
+//   case 'a': //left;
+//     PirAtE_SEND_DEBUG_MAKRO("got a");
+//     // reset delay time so we;re not going to stop after 2 second
+//     break;
+//   case 's': //right
+//     PirAtE_SEND_DEBUG_MAKRO("got s");
+//     // reset delay time so we;re not going to stop after 2 second
+//     break;
+//   case 'd': //backward
+//     PirAtE_SEND_DEBUG_MAKRO("got d");
+//     // reset delay time so we;re not going to stop after 2 second
+//     break;
+//   }
 
 // #define echoPin 2 // attach pin D2 Arduino to pin Echo of HC-SR04
 // #define trigPin 3 //attach pin D3 Arduino to pin Trig of HC-SR04
