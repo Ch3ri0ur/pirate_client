@@ -1,5 +1,6 @@
 #define PirAtE_SendMsg_Amount 11
 #define PirAtE_ReceiveMsg_Amount 11
+
 #include "PirAtE.h"
 
 #define echoPin 2 // attach pin D2 Arduino to pin Echo of HC-SR04
@@ -14,13 +15,13 @@ int inty = 0;
 unsigned int uinty = 0;
 long longy = 0;
 unsigned long ulongy = 0;
-float floaty = 0;
-double doubley = 0;
-//byte bytey;
-// word wordy;
-// byte booly;
+float floaty = 0.5;
+double doubley = 0.5;
+byte bytey = 0x00;
+word wordy = 0;
+byte booly = 0;
 char chary = 'f';
-char stringy[15] = "arduino\0";
+char stringy[15] = "arduino";
 int rvalue;
 char rcontrol;
 int rinty;
@@ -29,11 +30,11 @@ long rlongy;
 unsigned long rulongy;
 float rfloaty;
 double rdoubley;
-//byte rbytey;
-// word rwordy;
-// byte rbooly;
+byte rbytey;
+word rwordy;
+byte rbooly;
 char rchary;
-char rstringy[15] = "returnoino\0";
+char rstringy[15] = "returnoino";
 
 void setup()
 {
@@ -43,9 +44,9 @@ void setup()
   PirAtE_DEFINE_SENDMSG_MAKRO(3, PirAtE_MSG_DATATYPE_ULONG, &ulongy);
   PirAtE_DEFINE_SENDMSG_MAKRO(4, PirAtE_MSG_DATATYPE_FLOAT, &floaty);
   PirAtE_DEFINE_SENDMSG_MAKRO(5, PirAtE_MSG_DATATYPE_DOUBLE, &doubley);
-  // PirAtE_DEFINE_SENDMSG_MAKRO(6, PirAtE_MSG_DATATYPE_BYTE, &bytey);
-  // PirAtE_DEFINE_SENDMSG_MAKRO(7, PirAtE_MSG_DATATYPE_WORD, &wordy);
-  // PirAtE_DEFINE_SENDMSG_MAKRO(8, PirAtE_MSG_DATATYPE_BOOL, &booly);
+  PirAtE_DEFINE_SENDMSG_MAKRO(6, PirAtE_MSG_DATATYPE_BYTE, &bytey);
+  PirAtE_DEFINE_SENDMSG_MAKRO(7, PirAtE_MSG_DATATYPE_WORD, &wordy);
+  PirAtE_DEFINE_SENDMSG_MAKRO(8, PirAtE_MSG_DATATYPE_BOOL, &booly);
   PirAtE_DEFINE_SENDMSG_MAKRO(9, PirAtE_MSG_DATATYPE_CHAR, &chary);
   PirAtE_DEFINE_SENDMSG_MAKRO(10, PirAtE_MSG_DATATYPE_STRING, &stringy);
 
@@ -55,9 +56,9 @@ void setup()
   PirAtE_DEFINE_RECEIVEMSG_MAKRO(3, PirAtE_MSG_DATATYPE_ULONG, &rulongy);
   PirAtE_DEFINE_RECEIVEMSG_MAKRO(4, PirAtE_MSG_DATATYPE_FLOAT, &rfloaty);
   PirAtE_DEFINE_RECEIVEMSG_MAKRO(5, PirAtE_MSG_DATATYPE_DOUBLE, &rdoubley);
-  // PirAtE_DEFINE_RECEIVEMSG_MAKRO(6, PirAtE_MSG_DATATYPE_BYTE, &rbytey);
-  // PirAtE_DEFINE_RECEIVEMSG_MAKRO(7, PirAtE_MSG_DATATYPE_WORD, &rwordy);
-  // PirAtE_DEFINE_RECEIVEMSG_MAKRO(8, PirAtE_MSG_DATATYPE_BOOL, &rbooly);
+  PirAtE_DEFINE_RECEIVEMSG_MAKRO(6, PirAtE_MSG_DATATYPE_BYTE, &rbytey);
+  PirAtE_DEFINE_RECEIVEMSG_MAKRO(7, PirAtE_MSG_DATATYPE_WORD, &rwordy);
+  PirAtE_DEFINE_RECEIVEMSG_MAKRO(8, PirAtE_MSG_DATATYPE_BOOL, &rbooly);
   PirAtE_DEFINE_RECEIVEMSG_MAKRO(9, PirAtE_MSG_DATATYPE_CHAR, &rchary);
   PirAtE_DEFINE_RECEIVEMSG_MAKRO(10, PirAtE_MSG_DATATYPE_STRING, &rstringy);
   pinMode(trigPin, OUTPUT); // Sets the trigPin as an OUTPUT
@@ -80,30 +81,27 @@ void loop()
   distance = duration * 0.034 / 2; // Speed of sound wave divided by 2 (go and back)
   // Displays the distance on the Serial Monitor
 
-  inty = distance;
-  uinty++;
-  longy = duration;
-  ulongy++;
-  floaty++;
-  doubley++;
-  // bytey++;
-  // wordy++;
-  // booly++;
-  chary++;
-  if (stringy[0] == "a")
-  {
-    strcpy(stringy, "pirate\0");
-  }
-  else
-  {
-    strcpy(stringy, "arduino\0");
-  }
+  inty = rinty;
+  uinty = ruinty;
+  longy = rlongy;
+  ulongy = rulongy;
+  floaty = rfloaty;
+  doubley = rdoubley;
+  bytey = rbytey;
+  wordy = rwordy;
+  booly = rbooly;
+  chary = rchary;
+  strcpy(stringy, rstringy);
   PirAtE_SEND_DEBUG_MAKRO("Sending now");
+  delay(100);
   PirAtE_SENDMSGS_MAKRO();
   PirAtE_SEND_DEBUG_MAKRO("Recieving now");
+  delay(100);
   PirAte_RECIEVEMSGS_MAKRO();
   PirAtE_SEND_DEBUG_MAKRO("Sending test debug message now");
+  delay(100);
   PirAtE_SEND_DEBUG_MAKRO(inty);
+  delay(100);
   switch (control)
   {
   case 'w': //moves forward
