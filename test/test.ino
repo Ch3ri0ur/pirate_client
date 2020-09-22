@@ -1,10 +1,9 @@
+#define PirAtE_SendMsg_Amount 11
+#define PirAtE_ReceiveMsg_Amount 11
 #include "PirAtE.h"
 
 #define echoPin 2 // attach pin D2 Arduino to pin Echo of HC-SR04
 #define trigPin 3 //attach pin D3 Arduino to pin Trig of HC-SR04
-
-#define PirAtE_SendMsg_Amount 11
-#define PirAtE_ReceiveMsg_Amount 11
 
 // defines variables
 long duration = 0; // variable for the duration of sound wave travel
