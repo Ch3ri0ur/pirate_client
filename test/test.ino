@@ -1,8 +1,3 @@
-#define PirAtE_SendMsg_Amount 11
-#define PirAtE_ReceiveMsg_Amount 11
-#define PirAtE_AllowedReceiveBlockTime_micros 1000000ul
-#define PirAtE_ReceiveMSGInterVal_micros 1000ul
-
 #include "PirAtE.h"
 
 #define echoPin 2 // attach pin D2 Arduino to pin Echo of HC-SR04
@@ -23,7 +18,7 @@ byte bytey = 0x00;
 word wordy = 0;
 byte booly = 0;
 char chary = 'f';
-char stringy[15] = "arduino";
+char stringy[64] = "arduino";
 int rvalue;
 char rcontrol;
 int rinty;
@@ -36,7 +31,7 @@ byte rbytey;
 word rwordy;
 byte rbooly;
 char rchary;
-char rstringy[15] = "returnoino";
+char rstringy[64] = "returnoino";
 
 void setup()
 {
@@ -82,7 +77,12 @@ void loop()
   // Calculating the distance
   distance = duration * 0.034 / 2; // Speed of sound wave divided by 2 (go and back)
   // Displays the distance on the Serial Monitor
-
+  if(PirAtE_IS_NEW_DATA_AVAILABLE(10))
+  {
+    strcpy(stringy, rstringy);
+    PirAtE_NEW_DATA_IS_READ(10)
+    PirAtE_SEND_DEBUG_MAKRO("New Data 0");
+  }
   inty = rinty;
   uinty = ruinty;
   longy = rlongy;
@@ -93,7 +93,7 @@ void loop()
   wordy = rwordy;
   booly = rbooly;
   chary = rchary;
-  strcpy(stringy, rstringy);
+  
   PirAtE_SEND_DEBUG_MAKRO("Sending now");
   delay(100);
   PirAtE_SENDMSGS_MAKRO();

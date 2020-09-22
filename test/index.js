@@ -1,6 +1,6 @@
 const SerialPort = require('serialport');
 const Readline = require('@serialport/parser-readline');
-const port = new SerialPort('COM3', {
+const port = new SerialPort('COM4', {
     baudRate: 115200,
 });
 // const parser = port.pipe(new Readline({ delimiter: '\r\n' }))
@@ -30,7 +30,7 @@ arduinoSendBuffer_template = {
     7: 1,
     8: true,
     9: 'f',
-    10: 'was willst',
+    10: "christian nervt so was von echt schlim",
 };
 
 arduinoSendBuffer = {};
@@ -142,7 +142,8 @@ parser.on('data', (buffer) => {
                     buf.write(entry[1], 1, 'ascii');
                     break;
                 case 'string':
-                    buf = Buffer.alloc(entry[1].length + 3);
+                    buf = Buffer.alloc(entry[1].length+2);
+                    buf[buf.byteLength-1] = 00
                     buf.write(entry[1], 1, 'ascii');
                     break;
             }
@@ -215,9 +216,9 @@ parser.on('data', (buffer) => {
         }
         ts = Date.now();
         if (clientSendBuffer[ts]) {
-            clientSendBuffer[ts] = [...clientSendBuffer[ts], { i: index, v: value }];
+            clientSendBuffer[ts] = [...clientSendBuffer[ts], { i: index-48, v: value }];
         } else {
-            clientSendBuffer[ts] = [{ i: index, v: value }];
+            clientSendBuffer[ts] = [{ i: index-48, v: value }];
         }
     }
 

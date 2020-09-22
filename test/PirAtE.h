@@ -390,8 +390,9 @@ byte PirAtE_DATA_RECEIVE_BUFFER[PirAtE_Serial_Buffer_Size];
               {\
                 for (int j = 0; j < PirAtE_DATA_RECEIVE_DATASIZE[msgID];j++)\
                 {\
+                  PirAtE_SEND_DEBUG_MAKRO(PirAtE_DATA_RECEIVE_BUFFER[j+1]);\
                   PirAtE_DATA_RECEIVE_ADRESSES[msgID][j] = PirAtE_DATA_RECEIVE_BUFFER[j+1];\
-                  if(j >= bytes-1- PirAtE_MSG_DATAID_LENGTH ||(PirAtE_DATA_RECEIVE_DATASIZE[j+1] == PirAtE_CHARARRAY_END))\
+                  if(j >= bytes - 1 - PirAtE_MSG_DATAID_LENGTH ||(PirAtE_DATA_RECEIVE_DATASIZE[j+1] == PirAtE_CHARARRAY_END))\
                   {\
                     break;\
                   }\
