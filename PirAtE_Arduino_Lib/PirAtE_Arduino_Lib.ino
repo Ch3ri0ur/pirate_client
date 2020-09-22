@@ -1,9 +1,3 @@
-#define PirAtE_SendMsg_Amount 2
-#define PirAtE_SendMSGInterVal_micros 10ul
-#define PirAtE_AllowedSendBlockTime_micros 200ul
-#define PirAtE_ReceiveMSGInterVal_micros 100000ul
-#define PirAtE_AllowedReceiveBlockTime_micros 2000000ul
-#define PirAtE_ReceiveMsg_Amount 1
 #include "PirAtE.h"
 int data = 0x30;
 int data2 = 0x31;
