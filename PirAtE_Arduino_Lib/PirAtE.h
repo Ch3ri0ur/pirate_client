@@ -70,8 +70,8 @@
 #endif
 
 //End of SerialPrint MSG
-#define PirAtE_MSG_DELIMITER_LENGTH 7
-byte PirAtE_MSG_DELIMITER[PirAtE_MSG_DELIMITER_LENGTH] = {0xff,'P','i','r','A','t','E'};
+#define PirAtE_MSG_DELIMITER_LENGTH 8
+byte PirAtE_MSG_DELIMITER[PirAtE_MSG_DELIMITER_LENGTH] = {0xff,'P','i','r','A','t','E','\n'};
 
 //End of Chararray
 #define PirAtE_CHARARRAY_END_LENGTH 1
