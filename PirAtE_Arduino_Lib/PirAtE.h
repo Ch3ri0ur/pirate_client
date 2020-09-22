@@ -215,7 +215,7 @@ int PirAtE_SEND_MSG_Index = 0;
   {\
     if(micros() > PirAtE_nextMsgTime)\
     {\
-      if(PirAtE_ComType_Serialfunc.availableForWrite() > PirAtE_MSG_DELIMITER_LENGTH+PirAtE_MSG_DATA_OVERHEAD+PirAtE_DATA_SEND_DATASIZE[PirAtE_SEND_MSG_Index])\
+      if(PirAtE_ComType_Serialfunc.availableForWrite() >= PirAtE_MSG_DELIMITER_LENGTH+PirAtE_MSG_DATA_OVERHEAD+PirAtE_DATA_SEND_DATASIZE[PirAtE_SEND_MSG_Index])\
       {\
         PirAtE_ComType_Serialfunc.write(PirAtE_SEND_MSG_Index+PirAtE_MSG_DATAID_OFFSET);\
         PirAtE_ComType_Serialfunc.write(PirAtE_DATA_SEND_DATATYPE_MASK[PirAtE_SEND_MSG_Index]);\
