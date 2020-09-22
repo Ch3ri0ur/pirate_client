@@ -151,6 +151,11 @@ parser.on('data', (buffer) => {
             buf[0] = parseInt(entry[0]) + 48;
             console.log(buf);
             port.write(buf);
+        } else {
+            console.log("nothing to send")
+            let buf = Buffer.alloc(1);
+            buf[0] = 0x29;
+            port.write(buf)
         }
         // port.write(Buffer(0x0)); //deprecation warning use the Buffer.alloc(), Buffer.allocUnsafe(), or Buffer.from() methods instead.
     } else {
