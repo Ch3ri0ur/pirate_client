@@ -15,4 +15,27 @@
 //##DELIMITER##
 //0xff P i r A t E \n
 
+
+//Converter List
+Converter = {}
+Converter['R'] = {datatypeConverter:null,callback: RequestCallback};
+Converter['M'] = {datatypeConverter:null,callback: DebugCallback};
+Converter['I'] = {datatypeConverter:null,callback: RequestCallback};
+Converter['U'] = {datatypeConverter:null,callback: DebugCallback};
+
+
+//Bytes till Delimiter
 function CastArduMsg(ArduMSg)
+{
+
+}
+
+function RequestCallback(Data)
+{
+
+}
+
+function DebugCallback(Data)
+{
+
+}
