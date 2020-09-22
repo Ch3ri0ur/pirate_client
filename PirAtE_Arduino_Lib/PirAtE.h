@@ -85,6 +85,10 @@ byte PirAtE_MSG_DELIMITER[PirAtE_MSG_DELIMITER_LENGTH] = {0xff,'P','i','r','A','
 #define PirAtE_DEBUG_MSG_LENGTH 1
 #define PirAtE_DEBUG_MSG 'M'
 
+//NO Data
+#define PirAtE_NO_DATA_LENGTH 1
+#define PirAtE_NO_DATA 0x29
+
 //ID of DATA
 #define PirAtE_MSG_DATAID_LENGTH 1
 //Value Offset 0x30
@@ -229,32 +233,41 @@ int PirAtE_SEND_MSG_Index = 0;
   {\
     if(micros() > PirAtE_nextMsgTime)\
     {\
-      if(PirAtE_DATA_SEND_DATATYPE_MASK[PirAtE_SEND_MSG_Index] == PirAtE_MSG_DATATYPE_STRING)\
-        {\
-          PirAtE_DATA_SEND_DATASIZE[PirAtE_SEND_MSG_Index]=0;\
-          while(PirAtE_DATA_SEND_ADRESSES[PirAtE_SEND_MSG_Index][PirAtE_DATA_SEND_DATASIZE[PirAtE_SEND_MSG_Index]]!=PirAtE_CHARARRAY_END && PirAtE_DATA_SEND_DATASIZE[PirAtE_SEND_MSG_Index] <= PirAtE_MSG_DATATYPE_STRING_MAXLENGTH)\
-          {\
-            PirAtE_DATA_SEND_DATASIZE[PirAtE_SEND_MSG_Index]++;\
-          }\
-          if(PirAtE_DATA_SEND_DATASIZE[PirAtE_SEND_MSG_Index] == PirAtE_MSG_DATATYPE_STRING_MAXLENGTH || PirAtE_DATA_SEND_DATASIZE[PirAtE_SEND_MSG_Index]== 0)\
-          {\
-            PirAtE_DATA_SEND_DATASIZE[PirAtE_SEND_MSG_Index] = 1;\
-            PirAtE_ComType_Serialfunc.write(PirAtE_CHARARRAY_END);\
-          }\
-          else \
-          {\
-            PirAtE_ComType_Serialfunc.write(PirAtE_DATA_SEND_ADRESSES[PirAtE_SEND_MSG_Index], PirAtE_DATA_SEND_DATASIZE[PirAtE_SEND_MSG_Index]);\
-          }\
-      }\
-      if(PirAtE_ComType_Serialfunc.availableForWrite() >= PirAtE_MSG_DELIMITER_LENGTH+PirAtE_MSG_DATA_OVERHEAD+PirAtE_DATA_SEND_DATASIZE[PirAtE_SEND_MSG_Index])\
+      if((PirAtE_DATA_SEND_SENDMODE_MASK[PirAtE_SEND_MSG_Index/8] & PirAtE_MSG_SENDMODE_AUTO << ((PirAtE_SEND_MSG_Index%8))||PirAtE_DATA_SEND_NEWDATA_AVAILABLE_MASK[PirAtE_SEND_MSG_Index/8] & 1 << (PirAtE_SEND_MSG_Index%8)))\
       {\
-        PirAtE_ComType_Serialfunc.write(PirAtE_DATA_SEND_DATATYPE_MASK[PirAtE_SEND_MSG_Index]);\
-        PirAtE_ComType_Serialfunc.write(PirAtE_SEND_MSG_Index+PirAtE_MSG_DATAID_OFFSET);\
-        PirAtE_ComType_Serialfunc.write(PirAtE_DATA_SEND_ADRESSES[PirAtE_SEND_MSG_Index], PirAtE_DATA_SEND_DATASIZE[PirAtE_SEND_MSG_Index]);\
-        PirAtE_ComType_Serialfunc.write(PirAtE_MSG_DELIMITER, PirAtE_MSG_DELIMITER_LENGTH);\
+        if(PirAtE_DATA_SEND_DATATYPE_MASK[PirAtE_SEND_MSG_Index] == PirAtE_MSG_DATATYPE_STRING)\
+        {\
+            PirAtE_DATA_SEND_DATASIZE[PirAtE_SEND_MSG_Index]=0;\
+            while(PirAtE_DATA_SEND_ADRESSES[PirAtE_SEND_MSG_Index][PirAtE_DATA_SEND_DATASIZE[PirAtE_SEND_MSG_Index]]!=PirAtE_CHARARRAY_END && PirAtE_DATA_SEND_DATASIZE[PirAtE_SEND_MSG_Index] <= PirAtE_MSG_DATATYPE_STRING_MAXLENGTH)\
+            {\
+              PirAtE_DATA_SEND_DATASIZE[PirAtE_SEND_MSG_Index]++;\
+            }\
+            if(PirAtE_DATA_SEND_DATASIZE[PirAtE_SEND_MSG_Index] == PirAtE_MSG_DATATYPE_STRING_MAXLENGTH || PirAtE_DATA_SEND_DATASIZE[PirAtE_SEND_MSG_Index]== 0)\
+            {\
+              PirAtE_DATA_SEND_DATASIZE[PirAtE_SEND_MSG_Index] = 1;\
+              PirAtE_ComType_Serialfunc.write(PirAtE_CHARARRAY_END);\
+            }\
+            else \
+            {\
+              PirAtE_ComType_Serialfunc.write(PirAtE_DATA_SEND_ADRESSES[PirAtE_SEND_MSG_Index], PirAtE_DATA_SEND_DATASIZE[PirAtE_SEND_MSG_Index]);\
+            }\
+        }\
+        if(PirAtE_ComType_Serialfunc.availableForWrite() >= PirAtE_MSG_DELIMITER_LENGTH+PirAtE_MSG_DATA_OVERHEAD+PirAtE_DATA_SEND_DATASIZE[PirAtE_SEND_MSG_Index])\
+        {\
+          PirAtE_ComType_Serialfunc.write(PirAtE_DATA_SEND_DATATYPE_MASK[PirAtE_SEND_MSG_Index]);\
+          PirAtE_ComType_Serialfunc.write(PirAtE_SEND_MSG_Index+PirAtE_MSG_DATAID_OFFSET);\
+          PirAtE_ComType_Serialfunc.write(PirAtE_DATA_SEND_ADRESSES[PirAtE_SEND_MSG_Index], PirAtE_DATA_SEND_DATASIZE[PirAtE_SEND_MSG_Index]);\
+          PirAtE_ComType_Serialfunc.write(PirAtE_MSG_DELIMITER, PirAtE_MSG_DELIMITER_LENGTH);\
+          PirAtE_DATA_SEND_NEWDATA_AVAILABLE_MASK[PirAtE_SEND_MSG_Index/8] &= ~((byte)(1 << (PirAtE_SEND_MSG_Index%8)));\
+          PirAtE_SEND_MSG_Index++;\
+          PirAtE_SEND_MSG_Index%=PirAtE_SendMsg_Amount;\
+          PirAtE_nextMsgTime = micros() + PirAtE_SendMSGInterVal_micros;\
+        }\
+      }\
+      else\
+      {\
         PirAtE_SEND_MSG_Index++;\
         PirAtE_SEND_MSG_Index%=PirAtE_SendMsg_Amount;\
-        PirAtE_nextMsgTime = micros() + PirAtE_SendMSGInterVal_micros;\
       }\
     }\
     else\
@@ -264,7 +277,7 @@ int PirAtE_SEND_MSG_Index = 0;
         PirAtE_nextMsgTime = micros() + PirAtE_SendMSGInterVal_micros;\
       }\
     }\
-  }while (micros() < PirAtE_endTime && startIndex != PirAtE_SEND_MSG_Index);\
+  }while (micros() < PirAtE_endTime && micros() > PirAtE_endTime - PirAtE_AllowedSendBlockTime_micros && startIndex != PirAtE_SEND_MSG_Index);\
 }
 
 
@@ -331,7 +344,7 @@ byte PirAtE_DATA_RECEIVE_BUFFER[PirAtE_Serial_Buffer_Size];
   }\
 }
 
-#define PirAtE_IS_NEW_DATA_AVAILABLE(PirAtE_MSG_ID) (PirAtE_DATA_RECEIVE_NEWDATA_AVAILABLE_MASK[PirAtE_MSG_ID/8] | 1 << (PirAtE_MSG_ID%8))
+#define PirAtE_IS_NEW_DATA_AVAILABLE(PirAtE_MSG_ID) (PirAtE_DATA_RECEIVE_NEWDATA_AVAILABLE_MASK[PirAtE_MSG_ID/8] & 1 << (PirAtE_MSG_ID%8))
 
 #define PirAtE_NEW_DATA_IS_READ(PirAtE_MSG_ID)\
 {\
@@ -341,6 +354,7 @@ byte PirAtE_DATA_RECEIVE_BUFFER[PirAtE_Serial_Buffer_Size];
 #define PirAte_RECIEVEMSGS_MAKRO()\
 {\
   int receiveCount = 0;\
+  byte noData = 0;\
   unsigned long PirAtE_endTime = micros() + PirAtE_AllowedReceiveBlockTime_micros;\
   unsigned long PirAtE_nextMsgTime = micros();\
   do\
@@ -350,28 +364,36 @@ byte PirAtE_DATA_RECEIVE_BUFFER[PirAtE_Serial_Buffer_Size];
       if(PirAtE_ComType_Serialfunc.available()>0)\
       {\
         int bytes = PirAtE_ComType_Serialfunc.readBytes(PirAtE_DATA_RECEIVE_BUFFER,PirAtE_ComType_Serialfunc.available());\
-        if(bytes > 0 && PirAtE_DATA_RECEIVE_BUFFER[0] - PirAtE_MSG_DATAID_OFFSET < PirAtE_ReceiveMsg_Amount)\
+        if(PirAtE_DATA_RECEIVE_BUFFER[0] == PirAtE_NO_DATA)\
         {\
-          int msgID = PirAtE_DATA_RECEIVE_BUFFER[0] - PirAtE_MSG_DATAID_OFFSET;\
-          if(bytes <= PirAtE_MSG_DATAID_LENGTH+PirAtE_DATA_RECEIVE_DATASIZE[msgID])\
+          noData=1;\
+        }\
+        else\
+        {\
+          if(bytes > 0 && PirAtE_DATA_RECEIVE_BUFFER[0] - PirAtE_MSG_DATAID_OFFSET < PirAtE_ReceiveMsg_Amount)\
           {\
-            receiveCount++;\
-            if(PirAtE_DATA_RECEIVE_DATATYPE_MASK[msgID] == PirAtE_MSG_DATATYPE_STRING)\
+            int msgID = PirAtE_DATA_RECEIVE_BUFFER[0] - PirAtE_MSG_DATAID_OFFSET;\
+            if(bytes <= PirAtE_MSG_DATAID_LENGTH+PirAtE_DATA_RECEIVE_DATASIZE[msgID])\
             {\
-              for (int j = 0; j < PirAtE_DATA_RECEIVE_DATASIZE[msgID];j++)\
+              PirAtE_DATA_RECEIVE_NEWDATA_AVAILABLE_MASK[msgID/8] |= 1 << (msgID%8);\
+              receiveCount++;\
+              if(PirAtE_DATA_RECEIVE_DATATYPE_MASK[msgID] == PirAtE_MSG_DATATYPE_STRING)\
               {\
-                PirAtE_DATA_RECEIVE_ADRESSES[msgID][j] = PirAtE_DATA_RECEIVE_DATASIZE[j+1];\
-                if(j == bytes||(PirAtE_DATA_RECEIVE_DATASIZE[j+1]== PirAtE_CHARARRAY_END && PirAtE_DATA_RECEIVE_DATATYPE_MASK[msgID] == PirAtE_MSG_DATATYPE_STRING))\
+                for (int j = 0; j < PirAtE_DATA_RECEIVE_DATASIZE[msgID];j++)\
                 {\
-                  break;\
+                  PirAtE_DATA_RECEIVE_ADRESSES[msgID][j] = PirAtE_DATA_RECEIVE_DATASIZE[j+1];\
+                  if(j == bytes||(PirAtE_DATA_RECEIVE_DATASIZE[j+1]== PirAtE_CHARARRAY_END && PirAtE_DATA_RECEIVE_DATATYPE_MASK[msgID] == PirAtE_MSG_DATATYPE_STRING))\
+                  {\
+                    break;\
+                  }\
                 }\
               }\
-            }\
-            else\
-            {\
-              for (int j = 0; j < PirAtE_DATA_RECEIVE_DATASIZE[msgID];j++)\
+              else\
               {\
-                PirAtE_DATA_RECEIVE_ADRESSES[msgID][j] = PirAtE_DATA_RECEIVE_DATASIZE[j+1];\
+                for (int j = 0; j < PirAtE_DATA_RECEIVE_DATASIZE[msgID];j++)\
+                {\
+                  PirAtE_DATA_RECEIVE_ADRESSES[msgID][j] = PirAtE_DATA_RECEIVE_DATASIZE[j+1];\
+                }\
               }\
             }\
           }\
@@ -392,7 +414,7 @@ byte PirAtE_DATA_RECEIVE_BUFFER[PirAtE_Serial_Buffer_Size];
         PirAtE_nextMsgTime = micros() + PirAtE_ReceiveMSGInterVal_micros;\
       }\
     }\
-  }while (micros() < PirAtE_endTime && receiveCount < PirAtE_ReceiveMsg_Amount);\
+  }while (micros() < PirAtE_endTime && micros() > PirAtE_endTime - PirAtE_AllowedReceiveBlockTime_micros &&receiveCount < PirAtE_ReceiveMsg_Amount && noData == 0);\
 }
 
 #endif
