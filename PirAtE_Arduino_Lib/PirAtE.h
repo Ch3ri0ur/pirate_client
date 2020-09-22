@@ -70,8 +70,8 @@
 #endif
 
 //End of SerialPrint MSG
-#define PirAtE_MSG_DELIMITER_LENGTH 7
-byte PirAtE_MSG_DELIMITER[PirAtE_MSG_DELIMITER_LENGTH] = {0xff,'P','i','r','A','t','E'};
+#define PirAtE_MSG_DELIMITER_LENGTH 8
+byte PirAtE_MSG_DELIMITER[PirAtE_MSG_DELIMITER_LENGTH] = {0xff,'P','i','r','A','t','E','\n'};
 
 //End of Chararray
 #define PirAtE_CHARARRAY_END_LENGTH 1
@@ -335,15 +335,25 @@ byte PirAtE_DATA_RECEIVE_BUFFER[PirAtE_Serial_Buffer_Size];
         if(bytes > 0 && PirAtE_DATA_RECEIVE_BUFFER[0] - PirAtE_MSG_DATAID_OFFSET < PirAtE_ReceiveMsg_Amount)\
         {\
           int msgID = PirAtE_DATA_RECEIVE_BUFFER[0] - PirAtE_MSG_DATAID_OFFSET;\
-          if(PirAtE_DATA_RECEIVE_DATATYPE_MASK[msgID] == PirAtE_MSG_DATATYPE_STRING || bytes >= PirAtE_MSG_DATAID_LENGTH+PirAtE_DATA_RECEIVE_DATASIZE[msgID])\
+          if(bytes <= PirAtE_MSG_DATAID_LENGTH+PirAtE_DATA_RECEIVE_DATASIZE[msgID])\
           {\
             receiveCount++;\
-            for (int j = 0; j < PirAtE_DATA_RECEIVE_DATASIZE[msgID];j++)\
+            if(PirAtE_DATA_RECEIVE_DATATYPE_MASK[msgID] == PirAtE_MSG_DATATYPE_STRING)\
             {\
-              PirAtE_DATA_RECEIVE_ADRESSES[msgID][j] = PirAtE_DATA_RECEIVE_DATASIZE[j+1];\
-              if(j == bytes||(PirAtE_DATA_RECEIVE_DATASIZE[j+1]== PirAtE_CHARARRAY_END && PirAtE_DATA_RECEIVE_DATATYPE_MASK[msgID] == PirAtE_MSG_DATATYPE_STRING))\
+              for (int j = 0; j < PirAtE_DATA_RECEIVE_DATASIZE[msgID];j++)\
               {\
-                break;\
+                PirAtE_DATA_RECEIVE_ADRESSES[msgID][j] = PirAtE_DATA_RECEIVE_DATASIZE[j+1];\
+                if(j == bytes||(PirAtE_DATA_RECEIVE_DATASIZE[j+1]== PirAtE_CHARARRAY_END && PirAtE_DATA_RECEIVE_DATATYPE_MASK[msgID] == PirAtE_MSG_DATATYPE_STRING))\
+                {\
+                  break;\
+                }\
+              }\
+            }\
+            else\
+            {\
+              for (int j = 0; j < PirAtE_DATA_RECEIVE_DATASIZE[msgID];j++)\
+              {\
+                PirAtE_DATA_RECEIVE_ADRESSES[msgID][j] = PirAtE_DATA_RECEIVE_DATASIZE[j+1];\
               }\
             }\
           }\
