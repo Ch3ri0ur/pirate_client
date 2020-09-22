@@ -79,11 +79,11 @@ byte PirAtE_MSG_DELIMITER[PirAtE_MSG_DELIMITER_LENGTH] = {0xff,'P','i','r','A','
 
 //Request
 #define PirAtE_REQUEST_DATA_LENGTH 1
-#define PirAtE_REQUEST_DATA 0x29
+#define PirAtE_REQUEST_DATA 'R'
 
 //Debug
 #define PirAtE_DEBUG_MSG_LENGTH 1
-#define PirAtE_DEBUG_MSG 0x28
+#define PirAtE_DEBUG_MSG 'M'
 
 //ID of DATA
 #define PirAtE_MSG_DATAID_LENGTH 1
@@ -217,8 +217,8 @@ int PirAtE_SEND_MSG_Index = 0;
     {\
       if(PirAtE_ComType_Serialfunc.availableForWrite() >= PirAtE_MSG_DELIMITER_LENGTH+PirAtE_MSG_DATA_OVERHEAD+PirAtE_DATA_SEND_DATASIZE[PirAtE_SEND_MSG_Index])\
       {\
-        PirAtE_ComType_Serialfunc.write(PirAtE_SEND_MSG_Index+PirAtE_MSG_DATAID_OFFSET);\
         PirAtE_ComType_Serialfunc.write(PirAtE_DATA_SEND_DATATYPE_MASK[PirAtE_SEND_MSG_Index]);\
+        PirAtE_ComType_Serialfunc.write(PirAtE_SEND_MSG_Index+PirAtE_MSG_DATAID_OFFSET);\
         if(PirAtE_DATA_SEND_DATATYPE_MASK[PirAtE_SEND_MSG_Index] == PirAtE_MSG_DATATYPE_STRING)\
         {\
           PirAtE_DATA_SEND_DATASIZE[PirAtE_SEND_MSG_Index]=0;\
