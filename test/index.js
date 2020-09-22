@@ -11,7 +11,9 @@ const port = new SerialPort('COM3', {
 //const ByteLength = require('@serialport/parser-byte-length')
 const Delimiter = require('@serialport/parser-delimiter')
 //const parser = port.pipe(new ByteLength({ length: 4 }))
-const parser = port.pipe(new Delimiter({ delimiter: new Uint8Array([0xff, 0x50, 0x69, 0x72, 0x41, 0x74, 0x45]) })) 
+const parser = port.pipe(
+    new Delimiter({ delimiter: new Uint8Array([0xff, 0x50, 0x69, 0x72, 0x41, 0x74, 0x45, 0x0a]) }),
+); 
 //const parser = port.pipe(new Delimiter({ delimiter: new Uint8Array([0xff, 'P', 'i', 'r', 'A', 't','E']) })) 
 parser.on('data', (buffer) => {
 
@@ -19,14 +21,14 @@ parser.on('data', (buffer) => {
     data = buffer.slice(1);
     switch (controlbyte) {
         case 41:
-            port.write(Buffer(0x0)); //deprecation warning use the Buffer.alloc(), Buffer.allocUnsafe(), or Buffer.from() methods instead.
+            // port.write(Buffer(0x0)); //deprecation warning use the Buffer.alloc(), Buffer.allocUnsafe(), or Buffer.from() methods instead.
             break;
         case 40:
-            console.log("Debug: " + data.toString());
+            console.log('Debug: ' + data.toString());
             break;
         default:
-            console.log("----------- Fallthrough ----------")
-            console.log(controlbyte)
+            console.log('----------- Fallthrough ----------');
+            console.log(controlbyte);
             console.log(data);
     }
     // l = 'P'.charCodeAt(0)

@@ -7,20 +7,20 @@
 #define PirAtE_ReceiveMsg_Amount 11
 
 // defines variables
-long duration; // variable for the duration of sound wave travel
-int distance;  // variable for the distance measurement
-int value;
-char control;
-int inty;
-unsigned int uinty;
-long longy;
-unsigned long ulongy;
-float floaty;
-double doubley;
+long duration = 0; // variable for the duration of sound wave travel
+int distance = 0;  // variable for the distance measurement
+int value = 0;
+char control = 'u';
+int inty = 0;
+unsigned int uinty = 0;
+long longy = 0;
+unsigned long ulongy = 0;
+float floaty = 0;
+double doubley = 0;
 //byte bytey;
 // word wordy;
 // byte booly;
-char chary;
+char chary = 'f';
 char stringy[15] = "arduino\0";
 int rvalue;
 char rcontrol;
@@ -87,17 +87,17 @@ void loop()
   ulongy++;
   floaty++;
   doubley++;
-  bytey++;
-  wordy++;
-  booly++;
+  // bytey++;
+  // wordy++;
+  // booly++;
   chary++;
   if (stringy[0] == "a")
   {
-    stringy = "pirate";
+    strcpy(stringy, "pirate\0");
   }
   else
   {
-    stringy = "arduino";
+    strcpy(stringy, "arduino\0");
   }
   PirAtE_SEND_DEBUG_MAKRO("Sending now");
   PirAtE_SENDMSGS_MAKRO();
