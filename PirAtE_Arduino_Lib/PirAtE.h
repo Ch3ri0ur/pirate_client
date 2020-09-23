@@ -208,10 +208,10 @@ int PirAtE_SEND_MSG_Index = 0;
   delay(1000);\
 }
 
-#define PirAtE_SEND_DEBUG_MAKRO(Msg)\
+#define PirAtE_SEND_DEBUG_MAKRO(...)\
 {\
   PirAtE_ComType_Serialfunc.write(PirAtE_DEBUG_MSG);\
-  PirAtE_ComType_Serialfunc.print(Msg);\
+  PirAtE_ComType_Serialfunc.print(__VA_ARGS__);\
   PirAtE_ComType_Serialfunc.write(PirAtE_MSG_DELIMITER, PirAtE_MSG_DELIMITER_LENGTH);\
 }
 
@@ -305,7 +305,7 @@ PirAtE_DEFINED_SEND_MSGS;\
   PirAtE_SET_SENDMSG(PirAtE_DEFINED_SEND_MSGS, Global_VariableAdress, PirAtE_MSG_DATATYPE_STRING, PirAtE_MSG_SENDMODE)\
   if(StringBufferLength-PirAtE_CHARARRAY_END_LENGTH > PirAtE_MSG_DATATYPE_STRING_MAXLENGTH)\
   {\
-    PirAtE_SEND_DEBUG_MAKRO("ERROR: %s is longer than PirAtE_MSG_DATATYPE_STRING_MAXLENGTH bytes",Data_Name)\
+    PirAtE_SEND_DEBUG_MAKRO("ERROR: String is longer than PirAtE_MSG_DATATYPE_STRING_MAXLENGTH bytes")\
     PirAtE_DATA_SEND_DATASIZE[PirAtE_DEFINED_SEND_MSGS] = PirAtE_MSG_DATATYPE_STRING_MAXLENGTH;\
   }\
   else\
@@ -476,13 +476,13 @@ PirAtE_DEFINED_RECEIVE_MSGS;\
   PirAtE_ComType_Serialfunc.write(PirAtE_DATA_RECEIVE_DATATYPE_MASK[PirAtE_MSG_ID]);\
 }
 
-#define PirAtE_ADD_NEW_STRING_SENDMSG(Data_Name, Global_VariableAdress, StringBufferLength)\
+#define PirAtE_ADD_NEW_STRING_RECEIVEMSG(Data_Name, Global_VariableAdress, StringBufferLength)\
 PirAtE_DEFINED_RECEIVE_MSGS;\
 {\
   PirAtE_SET_RECEIVEMSG(PirAtE_DEFINED_RECEIVE_MSGS, Global_VariableAdress, PirAtE_MSG_DATATYPE_STRING)\
   if(StringBufferLength-PirAtE_CHARARRAY_END_LENGTH > PirAtE_MSG_DATATYPE_STRING_MAXLENGTH)\
   {\
-    PirAtE_SEND_DEBUG_MAKRO("ERROR: %s is longer than PirAtE_MSG_DATATYPE_STRING_MAXLENGTH bytes",Data_Name)\
+    PirAtE_SEND_DEBUG_MAKRO("ERROR: String is longer than PirAtE_MSG_DATATYPE_STRING_MAXLENGTH bytes")\
     PirAtE_DATA_RECEIVE_DATASIZE[PirAtE_DEFINED_RECEIVE_MSGS] = PirAtE_MSG_DATATYPE_STRING_MAXLENGTH;\
   }\
   else\

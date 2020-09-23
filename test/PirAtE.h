@@ -69,6 +69,9 @@
 #define PirAtE_ComType_Serialfunc Serial
 #endif
 
+//Start of Serial PirAtE
+#define PirAtE_SERIAL_START 'P'
+
 //End of SerialPrint MSG
 #define PirAtE_MSG_DELIMITER_LENGTH 8
 byte PirAtE_MSG_DELIMITER[PirAtE_MSG_DELIMITER_LENGTH] = {0xff,'P','i','r','A','t','E','\n'};
@@ -84,6 +87,18 @@ byte PirAtE_MSG_DELIMITER[PirAtE_MSG_DELIMITER_LENGTH] = {0xff,'P','i','r','A','
 //Debug
 #define PirAtE_DEBUG_MSG_LENGTH 1
 #define PirAtE_DEBUG_MSG 'M'
+
+//Seperator
+#define PirAtE_TRANSMIT_SEPERATOR_LENGTH 1
+#define PirAtE_TRANSMIT_SEPERATOR '$'
+
+//SEND MSG INFO
+#define PirAtE_TRANSMIT_SENDMSG_INFO_LENGTH 1
+#define PirAtE_TRANSMIT_SENDMSG_INFO 'T'
+
+//RECIEVE MSG INFO
+#define PirAtE_TRANSMIT_RECIEVEMSG_INFO_LENGTH 1
+#define PirAtE_TRANSMIT_RECIEVEMSG_INFO 't'
 
 //NO Data
 #define PirAtE_NO_DATA_LENGTH 1
@@ -148,28 +163,78 @@ byte PirAtE_DATA_SEND_DATASIZE[PirAtE_SendMsg_Amount];
 byte PirAtE_DATA_SEND_DATATYPE_MASK[PirAtE_SendMsg_Amount];
 byte PirAtE_DATA_SEND_SENDMODE_MASK[PirAtE_SendMsg_Amount/8 + (PirAtE_SendMsg_Amount%8?1:0)];
 byte PirAtE_DATA_SEND_NEWDATA_AVAILABLE_MASK[PirAtE_SendMsg_Amount/8 + (PirAtE_SendMsg_Amount%8?1:0)];
+int PirAtE_DEFINED_SEND_MSGS = 0;
 int PirAtE_SEND_MSG_Index = 0;
 
 
 #define PirAtE_START_COM()\
 {\
   PirAtE_ComType_Serialfunc.begin(PirAtE_Serial_Baudrate);\
+  delay(100);\
+  PirAtE_ComType_Serialfunc.write(PirAtE_SERIAL_START);\
+  PirAtE_ComType_Serialfunc.write(PirAtE_MSG_DATATYPE_INT);\
+  PirAtE_ComType_Serialfunc.write(PirAtE_MSG_DATATYPE_INT_LENGTH);\
+  PirAtE_ComType_Serialfunc.write(PirAtE_TRANSMIT_SEPERATOR);\
+  PirAtE_ComType_Serialfunc.write(PirAtE_MSG_DATATYPE_UINT);\
+  PirAtE_ComType_Serialfunc.write(PirAtE_MSG_DATATYPE_UINT_LENGTH);\
+  PirAtE_ComType_Serialfunc.write(PirAtE_TRANSMIT_SEPERATOR);\
+  PirAtE_ComType_Serialfunc.write(PirAtE_MSG_DATATYPE_LONG);\
+  PirAtE_ComType_Serialfunc.write(PirAtE_MSG_DATATYPE_LONG_LENGTH);\
+  PirAtE_ComType_Serialfunc.write(PirAtE_TRANSMIT_SEPERATOR);\
+  PirAtE_ComType_Serialfunc.write(PirAtE_MSG_DATATYPE_ULONG);\
+  PirAtE_ComType_Serialfunc.write(PirAtE_MSG_DATATYPE_ULONG_LENGTH);\
+  PirAtE_ComType_Serialfunc.write(PirAtE_TRANSMIT_SEPERATOR);\
+  PirAtE_ComType_Serialfunc.write(PirAtE_MSG_DATATYPE_FLOAT);\
+  PirAtE_ComType_Serialfunc.write(PirAtE_MSG_DATATYPE_FLOAT_LENGTH);\
+  PirAtE_ComType_Serialfunc.write(PirAtE_TRANSMIT_SEPERATOR);\
+  PirAtE_ComType_Serialfunc.write(PirAtE_MSG_DATATYPE_DOUBLE);\
+  PirAtE_ComType_Serialfunc.write(PirAtE_MSG_DATATYPE_DOUBLE_LENGTH);\
+  PirAtE_ComType_Serialfunc.write(PirAtE_TRANSMIT_SEPERATOR);\
+  PirAtE_ComType_Serialfunc.write(PirAtE_MSG_DATATYPE_BYTE);\
+  PirAtE_ComType_Serialfunc.write(PirAtE_MSG_DATATYPE_BYTE_LENGTH);\
+  PirAtE_ComType_Serialfunc.write(PirAtE_TRANSMIT_SEPERATOR);\
+  PirAtE_ComType_Serialfunc.write(PirAtE_MSG_DATATYPE_WORD);\
+  PirAtE_ComType_Serialfunc.write(PirAtE_MSG_DATATYPE_WORD_LENGTH);\
+  PirAtE_ComType_Serialfunc.write(PirAtE_TRANSMIT_SEPERATOR);\
+  PirAtE_ComType_Serialfunc.write(PirAtE_MSG_DATATYPE_BOOL);\
+  PirAtE_ComType_Serialfunc.write(PirAtE_MSG_DATATYPE_BOOL_LENGTH);\
+  PirAtE_ComType_Serialfunc.write(PirAtE_TRANSMIT_SEPERATOR);\
+  PirAtE_ComType_Serialfunc.write(PirAtE_MSG_DATATYPE_CHAR);\
+  PirAtE_ComType_Serialfunc.write(PirAtE_MSG_DATATYPE_CHAR_LENGTH);\
+  PirAtE_ComType_Serialfunc.write(PirAtE_TRANSMIT_SEPERATOR);\
+  PirAtE_ComType_Serialfunc.write(PirAtE_MSG_DATATYPE_STRING);\
+  PirAtE_ComType_Serialfunc.write(PirAtE_MSG_DATATYPE_STRING_MAXLENGTH);\
+  PirAtE_ComType_Serialfunc.write(PirAtE_MSG_DELIMITER, PirAtE_MSG_DELIMITER_LENGTH);\
+  delay(1000);\
 }
 
-#define PirAtE_SEND_DEBUG_MAKRO(Msg)\
+#define PirAtE_SEND_DEBUG_MAKRO(...)\
 {\
   PirAtE_ComType_Serialfunc.write(PirAtE_DEBUG_MSG);\
-  PirAtE_ComType_Serialfunc.print(Msg);\
+  PirAtE_ComType_Serialfunc.print(__VA_ARGS__);\
   PirAtE_ComType_Serialfunc.write(PirAtE_MSG_DELIMITER, PirAtE_MSG_DELIMITER_LENGTH);\
 }
 
-#define PirAtE_IS_NEW_DATA_TO_SEND(PirAtE_MSG_ID)\
+#define PirAtE_IS_NEW_DATA_TO_SEND(PirAtE_MSG_KEY)\
 {\
-  PirAtE_DATA_SEND_NEWDATA_AVAILABLE_MASK[PirAtE_MSG_ID/8] |= 1 << (PirAtE_MSG_ID%8);\
+  PirAtE_DATA_SEND_NEWDATA_AVAILABLE_MASK[PirAtE_MSG_KEY/8] |= 1 << (PirAtE_MSG_KEY%8);\
 }
-  
-#define PirAtE_DEFINE_SENDMSG_MAKRO(PirAtE_MSG_ID,PirAtE_MSG_DATATYPE, Global_VariableAdress, PirAtE_MSG_SENDMODE)\
+
+#define PirAtE_ADD_NEW_SENDMSG(Data_Name, Global_VariableAdress, PirAtE_MSG_DATATYPE, PirAtE_MSG_SENDMODE)\
+PirAtE_DEFINED_SEND_MSGS;\
 {\
+  PirAtE_SET_SENDMSG(PirAtE_DEFINED_SEND_MSGS, Global_VariableAdress, PirAtE_MSG_DATATYPE, PirAtE_MSG_SENDMODE)\
+  PirAtE_SEND_SENDMSG_INFO(PirAtE_DEFINED_SEND_MSGS, Data_Name, PirAtE_MSG_DATATYPE)\
+  PirAtE_ComType_Serialfunc.write(PirAtE_MSG_DELIMITER, PirAtE_MSG_DELIMITER_LENGTH);\
+  PirAtE_DEFINED_SEND_MSGS++;\
+}
+
+#define PirAtE_SET_SENDMSG(PirAtE_MSG_ID, Global_VariableAdress, PirAtE_MSG_DATATYPE, PirAtE_MSG_SENDMODE)\
+{\
+  if(PirAtE_MSG_ID >= PirAtE_SendMsg_Amount)\
+  {\
+    PirAtE_SEND_DEBUG_MAKRO("ERROR: <PirAtE_SendMsg_Amount> PirAtE_SendMsg_Amount is already reached")\
+  }\
   PirAtE_DATA_SEND_ADRESSES[PirAtE_MSG_ID] = (byte*) Global_VariableAdress;\
   PirAtE_DATA_SEND_SENDMODE_MASK[PirAtE_MSG_ID/8] &= ~((byte)(1 << (PirAtE_MSG_ID%8)));\
   PirAtE_DATA_SEND_SENDMODE_MASK[PirAtE_MSG_ID/8] |= PirAtE_MSG_SENDMODE << (PirAtE_MSG_ID%8);\
@@ -177,51 +242,79 @@ int PirAtE_SEND_MSG_Index = 0;
   PirAtE_DATA_SEND_NEWDATA_AVAILABLE_MASK[PirAtE_MSG_ID/8] |= PirAtE_MSG_SENDMODE << (PirAtE_MSG_ID%8);\
   switch (PirAtE_MSG_DATATYPE)\
   {\
-  case PirAtE_MSG_DATATYPE_INT:\
-    PirAtE_DATA_SEND_DATATYPE_MASK[PirAtE_MSG_ID] = PirAtE_MSG_DATATYPE_INT;\
-    PirAtE_DATA_SEND_DATASIZE[PirAtE_MSG_ID] = PirAtE_MSG_DATATYPE_INT_LENGTH;\
-    break;\
-  case PirAtE_MSG_DATATYPE_UINT:\
-    PirAtE_DATA_SEND_DATATYPE_MASK[PirAtE_MSG_ID] = PirAtE_MSG_DATATYPE_UINT;\
-    PirAtE_DATA_SEND_DATASIZE[PirAtE_MSG_ID] = PirAtE_MSG_DATATYPE_UINT_LENGTH;\
-    break;\
-  case PirAtE_MSG_DATATYPE_LONG:\
-    PirAtE_DATA_SEND_DATATYPE_MASK[PirAtE_MSG_ID] = PirAtE_MSG_DATATYPE_LONG;\
-    PirAtE_DATA_SEND_DATASIZE[PirAtE_MSG_ID] = PirAtE_MSG_DATATYPE_LONG_LENGTH;\
-    break;\
-  case PirAtE_MSG_DATATYPE_ULONG:\
-    PirAtE_DATA_SEND_DATATYPE_MASK[PirAtE_MSG_ID] = PirAtE_MSG_DATATYPE_ULONG;\
-    PirAtE_DATA_SEND_DATASIZE[PirAtE_MSG_ID] = PirAtE_MSG_DATATYPE_ULONG_LENGTH;\
-    break;\
-  case PirAtE_MSG_DATATYPE_FLOAT:\
-    PirAtE_DATA_SEND_DATATYPE_MASK[PirAtE_MSG_ID] = PirAtE_MSG_DATATYPE_FLOAT;\
-    PirAtE_DATA_SEND_DATASIZE[PirAtE_MSG_ID] = PirAtE_MSG_DATATYPE_FLOAT_LENGTH;\
-    break;\
-  case PirAtE_MSG_DATATYPE_DOUBLE:\
-    PirAtE_DATA_SEND_DATATYPE_MASK[PirAtE_MSG_ID] = PirAtE_MSG_DATATYPE_DOUBLE;\
-    PirAtE_DATA_SEND_DATASIZE[PirAtE_MSG_ID] = PirAtE_MSG_DATATYPE_DOUBLE_LENGTH;\
-    break;\
-  case PirAtE_MSG_DATATYPE_BYTE:\
-    PirAtE_DATA_SEND_DATATYPE_MASK[PirAtE_MSG_ID] = PirAtE_MSG_DATATYPE_BYTE;\
-    PirAtE_DATA_SEND_DATASIZE[PirAtE_MSG_ID] = PirAtE_MSG_DATATYPE_BYTE_LENGTH;\
-    break;\
-  case PirAtE_MSG_DATATYPE_WORD:\
-    PirAtE_DATA_SEND_DATATYPE_MASK[PirAtE_MSG_ID] = PirAtE_MSG_DATATYPE_WORD;\
-    PirAtE_DATA_SEND_DATASIZE[PirAtE_MSG_ID] = PirAtE_MSG_DATATYPE_WORD_LENGTH;\
-    break;\
-  case PirAtE_MSG_DATATYPE_BOOL:\
-    PirAtE_DATA_SEND_DATATYPE_MASK[PirAtE_MSG_ID] = PirAtE_MSG_DATATYPE_BOOL;\
-    PirAtE_DATA_SEND_DATASIZE[PirAtE_MSG_ID] = PirAtE_MSG_DATATYPE_BOOL_LENGTH;\
-    break;\
-  case PirAtE_MSG_DATATYPE_CHAR:\
-    PirAtE_DATA_SEND_DATATYPE_MASK[PirAtE_MSG_ID] = PirAtE_MSG_DATATYPE_CHAR;\
-    PirAtE_DATA_SEND_DATASIZE[PirAtE_MSG_ID] = PirAtE_MSG_DATATYPE_CHAR_LENGTH;\
-    break;\
-  case PirAtE_MSG_DATATYPE_STRING:\
-    PirAtE_DATA_SEND_DATATYPE_MASK[PirAtE_MSG_ID] = PirAtE_MSG_DATATYPE_STRING;\
-    PirAtE_DATA_SEND_DATASIZE[PirAtE_MSG_ID] = PirAtE_MSG_DATATYPE_STRING_MAXLENGTH;\
-    break;\
+    case PirAtE_MSG_DATATYPE_INT:\
+      PirAtE_DATA_SEND_DATATYPE_MASK[PirAtE_MSG_ID] = PirAtE_MSG_DATATYPE_INT;\
+      PirAtE_DATA_SEND_DATASIZE[PirAtE_MSG_ID] = PirAtE_MSG_DATATYPE_INT_LENGTH;\
+      break;\
+    case PirAtE_MSG_DATATYPE_UINT:\
+      PirAtE_DATA_SEND_DATATYPE_MASK[PirAtE_MSG_ID] = PirAtE_MSG_DATATYPE_UINT;\
+      PirAtE_DATA_SEND_DATASIZE[PirAtE_MSG_ID] = PirAtE_MSG_DATATYPE_UINT_LENGTH;\
+      break;\
+    case PirAtE_MSG_DATATYPE_LONG:\
+      PirAtE_DATA_SEND_DATATYPE_MASK[PirAtE_MSG_ID] = PirAtE_MSG_DATATYPE_LONG;\
+      PirAtE_DATA_SEND_DATASIZE[PirAtE_MSG_ID] = PirAtE_MSG_DATATYPE_LONG_LENGTH;\
+      break;\
+    case PirAtE_MSG_DATATYPE_ULONG:\
+      PirAtE_DATA_SEND_DATATYPE_MASK[PirAtE_MSG_ID] = PirAtE_MSG_DATATYPE_ULONG;\
+      PirAtE_DATA_SEND_DATASIZE[PirAtE_MSG_ID] = PirAtE_MSG_DATATYPE_ULONG_LENGTH;\
+      break;\
+    case PirAtE_MSG_DATATYPE_FLOAT:\
+      PirAtE_DATA_SEND_DATATYPE_MASK[PirAtE_MSG_ID] = PirAtE_MSG_DATATYPE_FLOAT;\
+      PirAtE_DATA_SEND_DATASIZE[PirAtE_MSG_ID] = PirAtE_MSG_DATATYPE_FLOAT_LENGTH;\
+      break;\
+    case PirAtE_MSG_DATATYPE_DOUBLE:\
+      PirAtE_DATA_SEND_DATATYPE_MASK[PirAtE_MSG_ID] = PirAtE_MSG_DATATYPE_DOUBLE;\
+      PirAtE_DATA_SEND_DATASIZE[PirAtE_MSG_ID] = PirAtE_MSG_DATATYPE_DOUBLE_LENGTH;\
+      break;\
+    case PirAtE_MSG_DATATYPE_BYTE:\
+      PirAtE_DATA_SEND_DATATYPE_MASK[PirAtE_MSG_ID] = PirAtE_MSG_DATATYPE_BYTE;\
+      PirAtE_DATA_SEND_DATASIZE[PirAtE_MSG_ID] = PirAtE_MSG_DATATYPE_BYTE_LENGTH;\
+      break;\
+    case PirAtE_MSG_DATATYPE_WORD:\
+      PirAtE_DATA_SEND_DATATYPE_MASK[PirAtE_MSG_ID] = PirAtE_MSG_DATATYPE_WORD;\
+      PirAtE_DATA_SEND_DATASIZE[PirAtE_MSG_ID] = PirAtE_MSG_DATATYPE_WORD_LENGTH;\
+      break;\
+    case PirAtE_MSG_DATATYPE_BOOL:\
+      PirAtE_DATA_SEND_DATATYPE_MASK[PirAtE_MSG_ID] = PirAtE_MSG_DATATYPE_BOOL;\
+      PirAtE_DATA_SEND_DATASIZE[PirAtE_MSG_ID] = PirAtE_MSG_DATATYPE_BOOL_LENGTH;\
+      break;\
+    case PirAtE_MSG_DATATYPE_CHAR:\
+      PirAtE_DATA_SEND_DATATYPE_MASK[PirAtE_MSG_ID] = PirAtE_MSG_DATATYPE_CHAR;\
+      PirAtE_DATA_SEND_DATASIZE[PirAtE_MSG_ID] = PirAtE_MSG_DATATYPE_CHAR_LENGTH;\
+      break;\
+    case PirAtE_MSG_DATATYPE_STRING:\
+      PirAtE_DATA_SEND_DATATYPE_MASK[PirAtE_MSG_ID] = PirAtE_MSG_DATATYPE_STRING;\
+      PirAtE_DATA_SEND_DATASIZE[PirAtE_MSG_ID] = PirAtE_MSG_DATATYPE_STRING_MAXLENGTH;\
+      break;\
   }\
+}
+
+#define PirAtE_SEND_SENDMSG_INFO(PirAtE_MSG_ID, Data_Name, PirAtE_MSG_DATATYPE)\
+{\
+  PirAtE_ComType_Serialfunc.write(PirAtE_TRANSMIT_SENDMSG_INFO);\
+  PirAtE_ComType_Serialfunc.write(PirAtE_MSG_ID + PirAtE_MSG_DATAID_OFFSET);\
+  PirAtE_ComType_Serialfunc.write(PirAtE_TRANSMIT_SEPERATOR);\
+  PirAtE_ComType_Serialfunc.print(Data_Name);\
+  PirAtE_ComType_Serialfunc.write(PirAtE_TRANSMIT_SEPERATOR);\
+  PirAtE_ComType_Serialfunc.write(PirAtE_DATA_SEND_DATATYPE_MASK[PirAtE_MSG_ID]);\
+}
+
+#define PirAtE_ADD_NEW_STRING_SENDMSG(Data_Name, Global_VariableAdress, StringBufferLength, PirAtE_MSG_SENDMODE)\
+PirAtE_DEFINED_SEND_MSGS;\
+{\
+  PirAtE_SET_SENDMSG(PirAtE_DEFINED_SEND_MSGS, Global_VariableAdress, PirAtE_MSG_DATATYPE_STRING, PirAtE_MSG_SENDMODE)\
+  if(StringBufferLength-PirAtE_CHARARRAY_END_LENGTH > PirAtE_MSG_DATATYPE_STRING_MAXLENGTH)\
+  {\
+    PirAtE_SEND_DEBUG_MAKRO("ERROR: String is longer than PirAtE_MSG_DATATYPE_STRING_MAXLENGTH bytes")\
+    PirAtE_DATA_SEND_DATASIZE[PirAtE_DEFINED_SEND_MSGS] = PirAtE_MSG_DATATYPE_STRING_MAXLENGTH;\
+  }\
+  else\
+  {\
+    PirAtE_DATA_SEND_DATASIZE[PirAtE_DEFINED_SEND_MSGS] = StringBufferLength-PirAtE_CHARARRAY_END_LENGTH;\
+  }\
+  PirAtE_SEND_SENDMSG_INFO(PirAtE_DEFINED_SEND_MSGS, Data_Name, PirAtE_MSG_DATATYPE)\
+  PirAtE_ComType_Serialfunc.write(PirAtE_MSG_DELIMITER, PirAtE_MSG_DELIMITER_LENGTH);\
+  PirAtE_DEFINED_SEND_MSGS++;\
 }
 
 #define PirAtE_SENDMSGS_MAKRO()\
@@ -238,8 +331,7 @@ int PirAtE_SEND_MSG_Index = 0;
       {\
         if(PirAtE_DATA_SEND_DATATYPE_MASK[PirAtE_SEND_MSG_Index] == PirAtE_MSG_DATATYPE_STRING && tmpStringSize == 0)\
         {\
-            PirAtE_DATA_SEND_DATASIZE[PirAtE_SEND_MSG_Index]=0;\
-            while(PirAtE_DATA_SEND_ADRESSES[PirAtE_SEND_MSG_Index][tmpStringSize]!=PirAtE_CHARARRAY_END && PirAtE_DATA_SEND_DATASIZE[PirAtE_SEND_MSG_Index] <= PirAtE_DATA_SEND_DATASIZE[PirAtE_SEND_MSG_Index])\
+            while(PirAtE_DATA_SEND_ADRESSES[PirAtE_SEND_MSG_Index][tmpStringSize]!=PirAtE_CHARARRAY_END && tmpStringSize <= PirAtE_DATA_SEND_DATASIZE[PirAtE_SEND_MSG_Index])\
             {\
               tmpStringSize++;\
             }\
@@ -249,7 +341,7 @@ int PirAtE_SEND_MSG_Index = 0;
             }\
             else if(tmpStringSize == 0)\
             {\
-              PirAtE_DATA_SEND_DATASIZE[PirAtE_SEND_MSG_Index] = 1;\
+              tmpStringSize = 1;\
               PirAtE_DATA_SEND_ADRESSES[PirAtE_SEND_MSG_Index][0]= PirAtE_CHARARRAY_END;\
             }\
         }\
@@ -264,7 +356,7 @@ int PirAtE_SEND_MSG_Index = 0;
           }\
           else\
           {\
-          PirAtE_ComType_Serialfunc.write(PirAtE_DATA_SEND_ADRESSES[PirAtE_SEND_MSG_Index], PirAtE_DATA_SEND_DATASIZE[PirAtE_SEND_MSG_Index]);\            
+            PirAtE_ComType_Serialfunc.write(PirAtE_DATA_SEND_ADRESSES[PirAtE_SEND_MSG_Index], PirAtE_DATA_SEND_DATASIZE[PirAtE_SEND_MSG_Index]);\            
           }\
           PirAtE_ComType_Serialfunc.write(PirAtE_MSG_DELIMITER, PirAtE_MSG_DELIMITER_LENGTH);\
           PirAtE_DATA_SEND_NEWDATA_AVAILABLE_MASK[PirAtE_SEND_MSG_Index/8] &= ~((byte)(1 << (PirAtE_SEND_MSG_Index%8)));\
@@ -299,65 +391,121 @@ byte PirAtE_DATA_RECEIVE_DATASIZE[PirAtE_ReceiveMsg_Amount];
 byte PirAtE_DATA_RECEIVE_DATATYPE_MASK[PirAtE_ReceiveMsg_Amount];
 byte PirAtE_DATA_RECEIVE_NEWDATA_AVAILABLE_MASK[PirAtE_ReceiveMsg_Amount/8 + (PirAtE_ReceiveMsg_Amount%8?1:0)];
 byte PirAtE_DATA_RECEIVE_BUFFER[PirAtE_Serial_Buffer_Size];
+int PirAtE_DEFINED_RECEIVE_MSGS = 0;
 
-#define PirAtE_DEFINE_RECEIVEMSG_MAKRO(PirAtE_MSG_ID,PirAtE_MSG_DATATYPE, Global_VariableAdress)\
+
+#define PirAtE_ADD_NEW_RECIEVEMSG(Data_Name, Global_VariableAdress, PirAtE_MSG_DATATYPE, Default_Value, Max_Value, Min_Value)\
+PirAtE_DEFINED_RECEIVE_MSGS;\
 {\
+  PirAtE_SET_RECEIVEMSG(PirAtE_DEFINED_RECEIVE_MSGS, Global_VariableAdress, PirAtE_MSG_DATATYPE)\
+  PirAtE_SEND_RECEIVEMSG_INFO(PirAtE_DEFINED_RECEIVE_MSGS, Data_Name, PirAtE_MSG_DATATYPE)\
+  PirAtE_ComType_Serialfunc.write(PirAtE_TRANSMIT_SEPERATOR);\
+  PirAtE_ComType_Serialfunc.print(Default_Value);\
+  PirAtE_ComType_Serialfunc.write(PirAtE_TRANSMIT_SEPERATOR);\
+  PirAtE_ComType_Serialfunc.print(Max_Value);\
+  PirAtE_ComType_Serialfunc.write(PirAtE_TRANSMIT_SEPERATOR);\
+  PirAtE_ComType_Serialfunc.print(Min_Value);\
+  PirAtE_ComType_Serialfunc.write(PirAtE_MSG_DELIMITER, PirAtE_MSG_DELIMITER_LENGTH);\
+  PirAtE_DEFINED_RECEIVE_MSGS++;\
+}
+
+#define PirAtE_SET_RECEIVEMSG(PirAtE_MSG_ID, Global_VariableAdress,PirAtE_MSG_DATATYPE)\
+{\
+  if(PirAtE_MSG_ID >= PirAtE_ReceiveMsg_Amount)\
+  {\
+    PirAtE_SEND_DEBUG_MAKRO("ERROR: <PirAtE_ReceiveMsg_Amount> PirAtE_ReceiveMsg_Amount is already reached")\
+  }\
   PirAtE_DATA_RECEIVE_ADRESSES[PirAtE_MSG_ID] = (byte*) Global_VariableAdress;\
   PirAtE_DATA_RECEIVE_NEWDATA_AVAILABLE_MASK[PirAtE_MSG_ID/8] &= ~((byte)(1 << (PirAtE_MSG_ID%8)));\
   switch (PirAtE_MSG_DATATYPE)\
   {\
-  case PirAtE_MSG_DATATYPE_INT:\
-    PirAtE_DATA_RECEIVE_DATATYPE_MASK[PirAtE_MSG_ID] = PirAtE_MSG_DATATYPE_INT;\
-    PirAtE_DATA_RECEIVE_DATASIZE[PirAtE_MSG_ID] = PirAtE_MSG_DATATYPE_INT_LENGTH;\
-    break;\
-  case PirAtE_MSG_DATATYPE_UINT:\
-    PirAtE_DATA_RECEIVE_DATATYPE_MASK[PirAtE_MSG_ID] = PirAtE_MSG_DATATYPE_UINT;\
-    PirAtE_DATA_RECEIVE_DATASIZE[PirAtE_MSG_ID] = PirAtE_MSG_DATATYPE_UINT_LENGTH;\
-    break;\
-  case PirAtE_MSG_DATATYPE_LONG:\
-    PirAtE_DATA_RECEIVE_DATATYPE_MASK[PirAtE_MSG_ID] = PirAtE_MSG_DATATYPE_LONG;\
-    PirAtE_DATA_RECEIVE_DATASIZE[PirAtE_MSG_ID] = PirAtE_MSG_DATATYPE_LONG_LENGTH;\
-    break;\
-  case PirAtE_MSG_DATATYPE_ULONG:\
-    PirAtE_DATA_RECEIVE_DATATYPE_MASK[PirAtE_MSG_ID] = PirAtE_MSG_DATATYPE_ULONG;\
-    PirAtE_DATA_RECEIVE_DATASIZE[PirAtE_MSG_ID] = PirAtE_MSG_DATATYPE_ULONG_LENGTH;\
-    break;\
-  case PirAtE_MSG_DATATYPE_FLOAT:\
-    PirAtE_DATA_RECEIVE_DATATYPE_MASK[PirAtE_MSG_ID] = PirAtE_MSG_DATATYPE_FLOAT;\
-    PirAtE_DATA_RECEIVE_DATASIZE[PirAtE_MSG_ID] = PirAtE_MSG_DATATYPE_FLOAT_LENGTH;\
-    break;\
-  case PirAtE_MSG_DATATYPE_DOUBLE:\
-    PirAtE_DATA_RECEIVE_DATATYPE_MASK[PirAtE_MSG_ID] = PirAtE_MSG_DATATYPE_DOUBLE;\
-    PirAtE_DATA_RECEIVE_DATASIZE[PirAtE_MSG_ID] = PirAtE_MSG_DATATYPE_DOUBLE_LENGTH;\
-    break;\
-  case PirAtE_MSG_DATATYPE_BYTE:\
-    PirAtE_DATA_RECEIVE_DATATYPE_MASK[PirAtE_MSG_ID] = PirAtE_MSG_DATATYPE_BYTE;\
-    PirAtE_DATA_RECEIVE_DATASIZE[PirAtE_MSG_ID] = PirAtE_MSG_DATATYPE_BYTE_LENGTH;\
-    break;\
-  case PirAtE_MSG_DATATYPE_WORD:\
-    PirAtE_DATA_RECEIVE_DATATYPE_MASK[PirAtE_MSG_ID] = PirAtE_MSG_DATATYPE_WORD;\
-    PirAtE_DATA_RECEIVE_DATASIZE[PirAtE_MSG_ID] = PirAtE_MSG_DATATYPE_WORD_LENGTH;\
-    break;\
-  case PirAtE_MSG_DATATYPE_BOOL:\
-    PirAtE_DATA_RECEIVE_DATATYPE_MASK[PirAtE_MSG_ID] = PirAtE_MSG_DATATYPE_BOOL;\
-    PirAtE_DATA_RECEIVE_DATASIZE[PirAtE_MSG_ID] = PirAtE_MSG_DATATYPE_BOOL_LENGTH;\
-    break;\
-  case PirAtE_MSG_DATATYPE_CHAR:\
-    PirAtE_DATA_RECEIVE_DATATYPE_MASK[PirAtE_MSG_ID] = PirAtE_MSG_DATATYPE_CHAR;\
-    PirAtE_DATA_RECEIVE_DATASIZE[PirAtE_MSG_ID] = PirAtE_MSG_DATATYPE_CHAR_LENGTH;\
-    break;\
-  case PirAtE_MSG_DATATYPE_STRING:\
-    PirAtE_DATA_RECEIVE_DATATYPE_MASK[PirAtE_MSG_ID] = PirAtE_MSG_DATATYPE_STRING;\
-    PirAtE_DATA_RECEIVE_DATASIZE[PirAtE_MSG_ID] = PirAtE_MSG_DATATYPE_STRING_MAXLENGTH;\
-    break;\
+    case PirAtE_MSG_DATATYPE_INT:\
+      PirAtE_DATA_RECEIVE_DATATYPE_MASK[PirAtE_MSG_ID] = PirAtE_MSG_DATATYPE_INT;\
+      PirAtE_DATA_RECEIVE_DATASIZE[PirAtE_MSG_ID] = PirAtE_MSG_DATATYPE_INT_LENGTH;\
+      break;\
+    case PirAtE_MSG_DATATYPE_UINT:\
+      PirAtE_DATA_RECEIVE_DATATYPE_MASK[PirAtE_MSG_ID] = PirAtE_MSG_DATATYPE_UINT;\
+      PirAtE_DATA_RECEIVE_DATASIZE[PirAtE_MSG_ID] = PirAtE_MSG_DATATYPE_UINT_LENGTH;\
+      break;\
+    case PirAtE_MSG_DATATYPE_LONG:\
+      PirAtE_DATA_RECEIVE_DATATYPE_MASK[PirAtE_MSG_ID] = PirAtE_MSG_DATATYPE_LONG;\
+      PirAtE_DATA_RECEIVE_DATASIZE[PirAtE_MSG_ID] = PirAtE_MSG_DATATYPE_LONG_LENGTH;\
+      break;\
+    case PirAtE_MSG_DATATYPE_ULONG:\
+      PirAtE_DATA_RECEIVE_DATATYPE_MASK[PirAtE_MSG_ID] = PirAtE_MSG_DATATYPE_ULONG;\
+      PirAtE_DATA_RECEIVE_DATASIZE[PirAtE_MSG_ID] = PirAtE_MSG_DATATYPE_ULONG_LENGTH;\
+      break;\
+    case PirAtE_MSG_DATATYPE_FLOAT:\
+      PirAtE_DATA_RECEIVE_DATATYPE_MASK[PirAtE_MSG_ID] = PirAtE_MSG_DATATYPE_FLOAT;\
+      PirAtE_DATA_RECEIVE_DATASIZE[PirAtE_MSG_ID] = PirAtE_MSG_DATATYPE_FLOAT_LENGTH;\
+      break;\
+    case PirAtE_MSG_DATATYPE_DOUBLE:\
+      PirAtE_DATA_RECEIVE_DATATYPE_MASK[PirAtE_MSG_ID] = PirAtE_MSG_DATATYPE_DOUBLE;\
+      PirAtE_DATA_RECEIVE_DATASIZE[PirAtE_MSG_ID] = PirAtE_MSG_DATATYPE_DOUBLE_LENGTH;\
+      break;\
+    case PirAtE_MSG_DATATYPE_BYTE:\
+      PirAtE_DATA_RECEIVE_DATATYPE_MASK[PirAtE_MSG_ID] = PirAtE_MSG_DATATYPE_BYTE;\
+      PirAtE_DATA_RECEIVE_DATASIZE[PirAtE_MSG_ID] = PirAtE_MSG_DATATYPE_BYTE_LENGTH;\
+      break;\
+    case PirAtE_MSG_DATATYPE_WORD:\
+      PirAtE_DATA_RECEIVE_DATATYPE_MASK[PirAtE_MSG_ID] = PirAtE_MSG_DATATYPE_WORD;\
+      PirAtE_DATA_RECEIVE_DATASIZE[PirAtE_MSG_ID] = PirAtE_MSG_DATATYPE_WORD_LENGTH;\
+      break;\
+    case PirAtE_MSG_DATATYPE_BOOL:\
+      PirAtE_DATA_RECEIVE_DATATYPE_MASK[PirAtE_MSG_ID] = PirAtE_MSG_DATATYPE_BOOL;\
+      PirAtE_DATA_RECEIVE_DATASIZE[PirAtE_MSG_ID] = PirAtE_MSG_DATATYPE_BOOL_LENGTH;\
+      break;\
+    case PirAtE_MSG_DATATYPE_CHAR:\
+      PirAtE_DATA_RECEIVE_DATATYPE_MASK[PirAtE_MSG_ID] = PirAtE_MSG_DATATYPE_CHAR;\
+      PirAtE_DATA_RECEIVE_DATASIZE[PirAtE_MSG_ID] = PirAtE_MSG_DATATYPE_CHAR_LENGTH;\
+      break;\
+    case PirAtE_MSG_DATATYPE_STRING:\
+      PirAtE_DATA_RECEIVE_DATATYPE_MASK[PirAtE_MSG_ID] = PirAtE_MSG_DATATYPE_STRING;\
+      PirAtE_DATA_RECEIVE_DATASIZE[PirAtE_MSG_ID] = PirAtE_MSG_DATATYPE_STRING_MAXLENGTH;\
+      break;\
   }\
 }
 
-#define PirAtE_IS_NEW_DATA_AVAILABLE(PirAtE_MSG_ID) (PirAtE_DATA_RECEIVE_NEWDATA_AVAILABLE_MASK[PirAtE_MSG_ID/8] & 1 << (PirAtE_MSG_ID%8))
-
-#define PirAtE_NEW_DATA_IS_READ(PirAtE_MSG_ID)\
+#define PirAtE_SEND_RECEIVEMSG_INFO(PirAtE_MSG_ID, Data_Name, PirAtE_MSG_DATATYPE)\
 {\
-    PirAtE_DATA_RECEIVE_NEWDATA_AVAILABLE_MASK[PirAtE_MSG_ID/8] &= ~((byte)(1 << (PirAtE_MSG_ID%8)));\
+  PirAtE_ComType_Serialfunc.write(PirAtE_TRANSMIT_RECIEVEMSG_INFO);\
+  PirAtE_ComType_Serialfunc.write(PirAtE_MSG_ID + PirAtE_MSG_DATAID_OFFSET);\
+  PirAtE_ComType_Serialfunc.write(PirAtE_TRANSMIT_SEPERATOR);\
+  PirAtE_ComType_Serialfunc.print(Data_Name);\
+  PirAtE_ComType_Serialfunc.write(PirAtE_TRANSMIT_SEPERATOR);\
+  PirAtE_ComType_Serialfunc.write(PirAtE_DATA_RECEIVE_DATATYPE_MASK[PirAtE_MSG_ID]);\
+}
+
+#define PirAtE_ADD_NEW_STRING_RECEIVEMSG(Data_Name, Global_VariableAdress, StringBufferLength)\
+PirAtE_DEFINED_RECEIVE_MSGS;\
+{\
+  PirAtE_SET_RECEIVEMSG(PirAtE_DEFINED_RECEIVE_MSGS, Global_VariableAdress, PirAtE_MSG_DATATYPE_STRING)\
+  if(StringBufferLength-PirAtE_CHARARRAY_END_LENGTH > PirAtE_MSG_DATATYPE_STRING_MAXLENGTH)\
+  {\
+    PirAtE_SEND_DEBUG_MAKRO("ERROR: String is longer than PirAtE_MSG_DATATYPE_STRING_MAXLENGTH bytes")\
+    PirAtE_DATA_RECEIVE_DATASIZE[PirAtE_DEFINED_RECEIVE_MSGS] = PirAtE_MSG_DATATYPE_STRING_MAXLENGTH;\
+  }\
+  else\
+  {\
+    PirAtE_DATA_RECEIVE_DATASIZE[PirAtE_DEFINED_RECEIVE_MSGS] = StringBufferLength-PirAtE_CHARARRAY_END_LENGTH;\
+  }\
+  PirAtE_SEND_RECEIVEMSG_INFO(PirAtE_DEFINED_RECEIVE_MSGS, Data_Name, PirAtE_MSG_DATATYPE)\
+  PirAtE_ComType_Serialfunc.write(PirAtE_TRANSMIT_SEPERATOR);\
+  PirAtE_ComType_Serialfunc.print('-');\
+  PirAtE_ComType_Serialfunc.write(PirAtE_TRANSMIT_SEPERATOR);\
+  PirAtE_ComType_Serialfunc.print(PirAtE_DATA_RECEIVE_DATASIZE[PirAtE_DEFINED_RECEIVE_MSGS]);\
+  PirAtE_ComType_Serialfunc.write(PirAtE_TRANSMIT_SEPERATOR);\
+  PirAtE_ComType_Serialfunc.print('-');\
+  PirAtE_ComType_Serialfunc.write(PirAtE_MSG_DELIMITER, PirAtE_MSG_DELIMITER_LENGTH);\
+  PirAtE_DEFINED_RECEIVE_MSGS++;\
+}
+
+#define PirAtE_IS_NEW_DATA_AVAILABLE(PirAtE_MSG_KEY)\
+(PirAtE_DATA_RECEIVE_NEWDATA_AVAILABLE_MASK[PirAtE_MSG_KEY/8] & 1 << (PirAtE_MSG_KEY%8))
+
+#define PirAtE_NEW_DATA_IS_READ(PirAtE_MSG_KEY)\
+{\
+    PirAtE_DATA_RECEIVE_NEWDATA_AVAILABLE_MASK[PirAtE_MSG_KEY/8] &= ~((byte)(1 << (PirAtE_MSG_KEY%8)));\
 }
 
 #define PirAte_RECIEVEMSGS_MAKRO()\
@@ -382,33 +530,31 @@ byte PirAtE_DATA_RECEIVE_BUFFER[PirAtE_Serial_Buffer_Size];
           if(bytes > 0 && PirAtE_DATA_RECEIVE_BUFFER[0] - PirAtE_MSG_DATAID_OFFSET < PirAtE_ReceiveMsg_Amount)\
           {\
             int msgID = PirAtE_DATA_RECEIVE_BUFFER[0] - PirAtE_MSG_DATAID_OFFSET;\
-            if(bytes <= PirAtE_MSG_DATAID_LENGTH+PirAtE_DATA_RECEIVE_DATASIZE[msgID])\
+            if(PirAtE_DATA_RECEIVE_DATATYPE_MASK[msgID] == PirAtE_MSG_DATATYPE_STRING)\
             {\
               PirAtE_DATA_RECEIVE_NEWDATA_AVAILABLE_MASK[msgID/8] |= 1 << (msgID%8);\
               receiveCount++;\
-              if(PirAtE_DATA_RECEIVE_DATATYPE_MASK[msgID] == PirAtE_MSG_DATATYPE_STRING)\
+              for (int j = 0; j < bytes-PirAtE_MSG_DATAID_LENGTH;j++)\
               {\
-                for (int j = 0; j < PirAtE_DATA_RECEIVE_DATASIZE[msgID];j++)\
+                PirAtE_DATA_RECEIVE_ADRESSES[msgID][j] = PirAtE_DATA_RECEIVE_BUFFER[j+1];\
+                if((PirAtE_DATA_RECEIVE_BUFFER[j+1] == PirAtE_CHARARRAY_END))\
                 {\
-                  PirAtE_SEND_DEBUG_MAKRO(PirAtE_DATA_RECEIVE_BUFFER[j+1]);\
-                  PirAtE_DATA_RECEIVE_ADRESSES[msgID][j] = PirAtE_DATA_RECEIVE_BUFFER[j+1];\
-                  if(j >= bytes - 1 - PirAtE_MSG_DATAID_LENGTH ||(PirAtE_DATA_RECEIVE_DATASIZE[j+1] == PirAtE_CHARARRAY_END))\
-                  {\
-                    break;\
-                  }\
-                  if( j >= PirAtE_DATA_RECEIVE_DATASIZE[msgID]-1)\
-                  {\
-                    PirAtE_DATA_RECEIVE_ADRESSES[msgID][j+1] = PirAtE_CHARARRAY_END;\
-                    break;\
-                  }\
+                  break;\
+                }\
+                if( j == PirAtE_DATA_RECEIVE_DATASIZE[msgID] || j == bytes-PirAtE_MSG_DATAID_LENGTH-1)\
+                {\
+                  PirAtE_DATA_RECEIVE_ADRESSES[msgID][j] = PirAtE_CHARARRAY_END;\
+                  break;\
                 }\
               }\
-              else\
+            }\
+            else if(bytes-PirAtE_MSG_DATAID_LENGTH == PirAtE_DATA_RECEIVE_DATASIZE[msgID])\
+            {\
+              PirAtE_DATA_RECEIVE_NEWDATA_AVAILABLE_MASK[msgID/8] |= 1 << (msgID%8);\
+              receiveCount++;\
+              for (int j = 0; j < PirAtE_DATA_RECEIVE_DATASIZE[msgID];j++)\
               {\
-                for (int j = 0; j < PirAtE_DATA_RECEIVE_DATASIZE[msgID];j++)\
-                {\
-                  PirAtE_DATA_RECEIVE_ADRESSES[msgID][j] = PirAtE_DATA_RECEIVE_BUFFER[j+1];\
-                }\
+                PirAtE_DATA_RECEIVE_ADRESSES[msgID][j] = PirAtE_DATA_RECEIVE_BUFFER[j+1];\
               }\
             }\
           }\
