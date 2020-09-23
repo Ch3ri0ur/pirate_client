@@ -6,6 +6,7 @@ const port = new SerialPort('COM4', {
 // const parser = port.pipe(new Readline({ delimiter: '\r\n' }))
 
 clientSendBuffer = {};
+arduinoSendBuffer = {};
 arduinoSendBuffer_datatypes = [
     'int',
     'uint',
@@ -33,11 +34,7 @@ arduinoSendBuffer_template = {
     10: "christian nervt so was von echt schlim",
 };
 
-arduinoSendBuffer = {};
-
-//const ByteLength = require('@serialport/parser-byte-length')
 const Delimiter = require('@serialport/parser-delimiter');
-//const parser = port.pipe(new ByteLength({ length: 4 }))
 const parser = port.pipe(
     new Delimiter({ delimiter: new Uint8Array([0xff, 0x50, 0x69, 0x72, 0x41, 0x74, 0x45, 0x0a]) }),
 );
@@ -142,8 +139,8 @@ parser.on('data', (buffer) => {
                     buf.write(entry[1], 1, 'ascii');
                     break;
                 case 'string':
-                    buf = Buffer.alloc(entry[1].length+2);
-                    buf[buf.byteLength-1] = 00
+                    buf = Buffer.alloc(entry[1].length + 2);
+                    buf[buf.byteLength - 1] = 00;
                     buf.write(entry[1], 1, 'ascii');
                     break;
             }
@@ -156,7 +153,6 @@ parser.on('data', (buffer) => {
             buf[0] = 0x29;
             port.write(buf);
         }
-        // port.write(Buffer(0x0)); //deprecation warning use the Buffer.alloc(), Buffer.allocUnsafe(), or Buffer.from() methods instead.
     } else {
         let index = buffer[1];
         data = buffer.slice(2);
@@ -209,33 +205,18 @@ parser.on('data', (buffer) => {
                 //console.log('ulong: ' + value);
                 break;
             default:
-                console.log('----------- Fallthrough ----------');
+                console.log('----------- Fallthrough, unknown controlbyte ----------');
                 console.log(controlbyte);
                 console.log(data);
                 value = null;
         }
-        ts = Date.now();
-        if (clientSendBuffer[ts]) {
-            clientSendBuffer[ts] = [...clientSendBuffer[ts], { i: index-48, v: value }];
-        } else {
-            clientSendBuffer[ts] = [{ i: index-48, v: value }];
+        if (value) {
+            ts = Date.now();
+            if (clientSendBuffer[ts]) {
+                clientSendBuffer[ts] = [...clientSendBuffer[ts], { i: index - 48, v: value }];
+            } else {
+                clientSendBuffer[ts] = [{ i: index - 48, v: value }];
+            }
         }
     }
-
-    // l = 'P'.charCodeAt(0)
-    // k = String.fromCharCode(0x15)
-
-    // console.log("ID")
-    // console.log(data[0])
-
-    // if(data[0] == 0x29)
-    // {
-    //     console.log("Answer")
-    //     respond = new Buffer.alloc(3)
-    //     respond[0] = 0x30
-    //     respond[1] = 0x0
-    //     respond[2] = 0x0
-    //     port.write(respond)
-    //     console.log(respond[0])
-    // }
 });
