@@ -1,8 +1,40 @@
 const express = require('express');
 const cors = require('cors');
 const SerialPort = require('serialport');
-const Readline = require('@serialport/parser-readline');
-// const port = new SerialPort('/dev/ttyACM0', {
+
+// TODO: Get config from Arduino
+clientSendBuffer = {};
+clientSendBuffer_config = {
+    0: { name: 'p_val', type: 'float' }, // ? description? or identifier / name , max , min
+    1: { name: 'i_val', type: 'float' },
+    2: { name: 'd_val', type: 'float' },
+    3: { name: 'control_val', type: 'float' },
+    4: { name: 'measurement', type: 'float' },
+};
+arduinoSendBuffer = {};
+arduinoSendBuffer_config = {
+    0: { name: 'p', type: 'float' },
+    1: { name: 'i', type: 'float' },
+    2: { name: 'd', type: 'float' },
+    3: { name: 'stop', type: 'bool' },
+    4: { name: 'start', type: 'bool' },
+};
+// arduinoSendBuffer_datatypes = [
+//     'int',
+//     'uint',
+//     'long',
+//     'ulong',
+//     'float',
+//     'double',
+//     'byte',
+//     'word',
+//     'bool',
+//     'char',
+//     'string',
+// ];
+
+// $(1char for id)(1char for datatype)((+-)Digitamount of chars)E((+-)Expamount of chars)#%
+// $(1char for id)(1char for datatype)((+-)Digitamount of chars)E((+-)Expamount of chars)#(1id)(1datatype)((+-)Digitamount of chars)E((+-)Expamount of chars)#%
 
 SerialPort.list()
     .then((result) => {
@@ -30,7 +62,8 @@ SerialPort.list()
                         console.log(entry);
                         let payload;
                         let buf;
-                        switch (arduinoSendBuffer_datatypes[entry[0]]) {
+                        // TODO Check if the type is compatible with config
+                        switch (arduinoSendBuffer_config[entry[0]].type) {
                             case 'int':
                                 buf = Buffer.alloc(3);
                                 buf.writeInt16LE(entry[1], 1);
@@ -92,6 +125,7 @@ SerialPort.list()
                     //console.log('-------- new var ------');
                     //console.log(data);
                     let value;
+                    // ? Is it necessary to send type if config was declared beforehand?
                     switch (controlbyte) {
                         case 66: // B Byte
                             value = data.readUIntLE(0, data.length);
@@ -167,24 +201,15 @@ const app = express();
 
 app.use(express.json());
 
-// $(1char for id)(1char for datatype)((+-)Digitamount of chars)E((+-)Expamount of chars)#%
-// $(1char for id)(1char for datatype)((+-)Digitamount of chars)E((+-)Expamount of chars)#(1id)(1datatype)((+-)Digitamount of chars)E((+-)Expamount of chars)#%
-
-clientSendBuffer = {};
-arduinoSendBuffer = {};
-arduinoSendBuffer_datatypes = [
-    'int',
-    'uint',
-    'long',
-    'ulong',
-    'float',
-    'double',
-    'byte',
-    'word',
-    'bool',
-    'char',
-    'string',
-];
+app.get('/getconfig', (req, res) => {
+    console.log(req);
+    console.log(arduinoSendBuffer_config);
+    console.log(clientSendBuffer_config);
+    res.json({
+        clientsend_config: clientSendBuffer_config,
+        arduinosend_config: arduinoSendBuffer_config,
+    });
+});
 
 app.get('/stream', (req, res) => {
     res.set({
@@ -212,12 +237,18 @@ app.get('/stream', (req, res) => {
     }, 100);
 });
 
-app.post('/message', (req, res) => {
+app.post('/ctrl', (req, res) => {
     console.log(req);
+    data = JSON.parse(req.body);
+    console.log(data);
+    for (let [idx, value] of Object.entries(data)) {
+        console.log(`${idx}: ${value}`);
+        // TODO perhaps check if value matches type
+        arduinoSendBuffer[idx] = value
+    };
+    // add stuff to arduinoSendBuffer
     res.send('success');
 });
-
-
 
 app.use(cors());
 
