@@ -26,10 +26,12 @@ findArduino()
         const port = new SerialPort(portName, {
             baudRate: 115200,
         });
+
         const Delimiter = require('@serialport/parser-delimiter');
         const parser = port.pipe(
             new Delimiter({ delimiter: new Uint8Array([0xff, 0x50, 0x69, 0x72, 0x41, 0x74, 0x45, 0x0a]) }),
         );
+        // TODO FLUSH THE STREAM TILL DATATYPESIZES
         parser.on('data', (buffer) => {
             let controlbyte = buffer[0];
             let data = buffer.slice(1);
@@ -39,28 +41,34 @@ findArduino()
                     console.log('Debug: ' + data.toString());
                     break;
                 case 80: // P arduino datatype sizes
-                    configString = data.toString();
-                    configComponents = configString.split('$');
-                    for (comp in configComponents) {
-                        arduinoDatatypeSizes[comp[0]] = comp[1].charCodeAt(0);
+                    console.log(data);
+                    datatypeSizeBufferValues = [...data.values()];
+                    let i = 0;
+                    for (i = 0; i < datatypeSizeBufferValues.length; i = i + 3) {
+                        arduinoDatatypeSizes[String.fromCharCode(datatypeSizeBufferValues[i])] =
+                            datatypeSizeBufferValues[i + 1];
                     }
                     console.log(arduinoDatatypeSizes);
                     break;
                 case 84: // T arduino -> node config string
-                    configString = data.toString();
+                    configString = data.slice(1).toString();
+                    console.log(configString);
                     configComponents = configString.split('$');
+                    console.log(configComponents);
                     // index$name$type
-                    clientSendBuffer_config[configComponents[0]] = {
+                    id = data[0] - 48;
+                    clientSendBuffer_config[id] = {
                         name: configComponents[1],
                         type: configComponents[2],
                     };
                     console.log(clientSendBuffer_config);
                     break;
                 case 116: // t node -> arduino config string
-                    configString = data.toString();
+                    configString = data.slice(1).toString();
                     configComponents = configString.split('$');
                     // index$name$type$default$max$min
-                    arduinoSendBuffer_config[configComponents[0]] = {
+                    id = data[0] - 48;
+                    arduinoSendBuffer_config[id] = {
                         name: configComponents[1],
                         type: configComponents[2],
                         default: configComponents[3],
@@ -79,6 +87,8 @@ findArduino()
                         let payload;
                         let buf;
                         // TODO Check if the type is compatible with config
+                        console.log(`about to send to arduino with type: ${arduinoSendBuffer_config[entry[0]].type}`);
+                        console.log(arduinoDatatypeSizes);
                         let payload_size = arduinoDatatypeSizes[arduinoSendBuffer_config[entry[0]].type] + 1;
                         switch (arduinoSendBuffer_config[entry[0]].type) {
                             case 'I':
@@ -135,6 +145,7 @@ findArduino()
                         console.log('nothing to send');
                         let buf = Buffer.alloc(1);
                         buf[0] = 0x29;
+                        console.log(buf);
                         port.write(buf);
                     }
                     break;
@@ -235,9 +246,10 @@ var testLoadID = setInterval(() => {
         // arduinoSendBuffer = Object.assign(arduinoSendBuffer_template);
         const keys = Object.keys(arduinoSendBuffer_config);
         let randomIndex = keys[Math.floor(Math.random() * keys.length)];
-        arduinoSendBuffer[randomIndex] = arduinoSendBuffer_config[randomIndex].default;
+        arduinoSendBuffer[randomIndex] = arduinoSendBuffer_config[randomIndex].max;
         randomIndex = keys[Math.floor(Math.random() * keys.length)];
         arduinoSendBuffer[randomIndex] = arduinoSendBuffer_config[randomIndex].default;
+        console.log(`in arduino Buffer sending:`);
         console.log(arduinoSendBuffer);
     } else {
         // nothing to send
@@ -248,6 +260,7 @@ var intervalID = setInterval(() => {
     //   console.log(clientSendBuffer);
     if (Object.entries(clientSendBuffer).length !== 0) {
         // send stuff
+        console.log(`in client Buffer sending:`);
         console.log(clientSendBuffer);
         // console.log(JSON.stringify(clientSendBuffer));
         clientSendBuffer = {};
