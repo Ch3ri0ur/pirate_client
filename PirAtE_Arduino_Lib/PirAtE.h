@@ -581,7 +581,7 @@ PirAtE_DEFINED_RECEIVE_MSGS;\
         }\
       }\
       while (PirAtE_ComType_Serialfunc.read()!=-1);\
-      if(PirAtE_ComType_Serialfunc.availableForWrite() > PirAtE_MSG_DELIMITER_LENGTH+PirAtE_REQUEST_DATA_LENGTH)\
+      if(noData == 0 && PirAtE_ComType_Serialfunc.availableForWrite() > PirAtE_MSG_DELIMITER_LENGTH+PirAtE_REQUEST_DATA_LENGTH)\
       {\
         PirAtE_ComType_Serialfunc.write(PirAtE_REQUEST_DATA);\
         PirAtE_ComType_Serialfunc.write(PirAtE_MSG_DELIMITER, PirAtE_MSG_DELIMITER_LENGTH);\

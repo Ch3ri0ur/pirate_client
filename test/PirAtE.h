@@ -538,8 +538,11 @@ PirAtE_DEFINED_RECEIVE_MSGS;\
       if(PirAtE_ComType_Serialfunc.available()>0)\
       {\
         int bytes = PirAtE_ComType_Serialfunc.readBytes(PirAtE_DATA_RECEIVE_BUFFER,PirAtE_ComType_Serialfunc.available());\
+        PirAtE_SEND_DEBUG_MAKRO("Empfange Index");\
+        PirAtE_SEND_DEBUG_MAKRO(PirAtE_DATA_RECEIVE_BUFFER[0]);\
         if(PirAtE_DATA_RECEIVE_BUFFER[0] == PirAtE_NO_DATA)\
         {\
+          PirAtE_SEND_DEBUG_MAKRO("NODATA Set");\
           noData=1;\
         }\
         else\
@@ -581,7 +584,7 @@ PirAtE_DEFINED_RECEIVE_MSGS;\
         }\
       }\
       while (PirAtE_ComType_Serialfunc.read()!=-1);\
-      if(PirAtE_ComType_Serialfunc.availableForWrite() > PirAtE_MSG_DELIMITER_LENGTH+PirAtE_REQUEST_DATA_LENGTH)\
+      if(noData == 0 && PirAtE_ComType_Serialfunc.availableForWrite() > PirAtE_MSG_DELIMITER_LENGTH+PirAtE_REQUEST_DATA_LENGTH)\
       {\
         PirAtE_ComType_Serialfunc.write(PirAtE_REQUEST_DATA);\
         PirAtE_ComType_Serialfunc.write(PirAtE_MSG_DELIMITER, PirAtE_MSG_DELIMITER_LENGTH);\
@@ -595,7 +598,7 @@ PirAtE_DEFINED_RECEIVE_MSGS;\
         PirAtE_nextMsgTime = micros() + PirAtE_ReceiveMSGInterVal_micros;\
       }\
     }\
-  }while (micros() < PirAtE_endTime && micros() > PirAtE_endTime - PirAtE_AllowedReceiveBlockTime_micros &&receiveCount < PirAtE_ReceiveMsg_Amount && noData == 0);\
+  }while (micros() < PirAtE_endTime && micros() > PirAtE_endTime - PirAtE_AllowedReceiveBlockTime_micros && receiveCount < PirAtE_ReceiveMsg_Amount && noData == 0);\
 }
 
 #endif
