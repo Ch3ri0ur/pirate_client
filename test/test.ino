@@ -49,21 +49,21 @@ void setup()
   PirAtE_ADD_NEW_SENDMSG("booly", &booly, PirAtE_MSG_DATATYPE_BOOL, PirAtE_MSG_SENDMODE_AUTO);
   PirAtE_ADD_NEW_SENDMSG("chary", &chary, PirAtE_MSG_DATATYPE_CHAR, PirAtE_MSG_SENDMODE_AUTO);
   // key = PirAtE_ADD_NEW_STRING_SENDMSG(Data_Name, Global_VariableAdress, StringBufferLength, PirAtE_MSG_SENDMODE)
-  PirAtE_ADD_NEW_STRING_SENDMSG("stringy", &stringy, 64, PirAtE_MSG_SENDMODE_AUTO);
+  PirAtE_ADD_NEW_STRING_SENDMSG("stringy", &stringy, 32, PirAtE_MSG_SENDMODE_AUTO);
 
   // key = PirAtE_ADD_NEW_RECIEVEMSG(Data_Name, Global_VariableAdress, PirAtE_MSG_DATATYPE, Default_Value, Max_Value, Min_Value)
-  PirAtE_ADD_NEW_RECIEVEMSG("rinty", &rinty, PirAtE_MSG_DATATYPE_INT,0,200,0);
-  PirAtE_ADD_NEW_RECIEVEMSG("ruinty", &ruinty, PirAtE_MSG_DATATYPE_UINT,0,200,0);
-  PirAtE_ADD_NEW_RECIEVEMSG("rlongy", &rlongy, PirAtE_MSG_DATATYPE_LONG,0,200,0);
-  PirAtE_ADD_NEW_RECIEVEMSG("rulongy", &rulongy, PirAtE_MSG_DATATYPE_ULONG,0,200,0);
-  PirAtE_ADD_NEW_RECIEVEMSG("rfloaty", &rfloaty, PirAtE_MSG_DATATYPE_FLOAT,0,200,0);
-  PirAtE_ADD_NEW_RECIEVEMSG("rdoubley", &rdoubley, PirAtE_MSG_DATATYPE_DOUBLE,0,200,0);
-  PirAtE_ADD_NEW_RECIEVEMSG("rbytey", &rbytey, PirAtE_MSG_DATATYPE_BYTE,0,200,0);
-  PirAtE_ADD_NEW_RECIEVEMSG("rwordy", &rwordy, PirAtE_MSG_DATATYPE_WORD,0,200,0);
+  PirAtE_ADD_NEW_RECIEVEMSG("rinty", &rinty, PirAtE_MSG_DATATYPE_INT,0,32767,-32768);
+  PirAtE_ADD_NEW_RECIEVEMSG("ruinty", &ruinty, PirAtE_MSG_DATATYPE_UINT,1,65535,0);
+  PirAtE_ADD_NEW_RECIEVEMSG("rlongy", &rlongy, PirAtE_MSG_DATATYPE_LONG,0,2147483647,-2147483647);
+  PirAtE_ADD_NEW_RECIEVEMSG("rulongy", &rulongy, PirAtE_MSG_DATATYPE_ULONG,4,4294967295U,0);
+  PirAtE_ADD_NEW_RECIEVEMSG("rfloaty", &rfloaty, PirAtE_MSG_DATATYPE_FLOAT,0,3.1e9,-3.1E9);
+  PirAtE_ADD_NEW_RECIEVEMSG("rdoubley", &rdoubley, PirAtE_MSG_DATATYPE_DOUBLE,0,3.1e9,-3.1e9);
+  PirAtE_ADD_NEW_RECIEVEMSG("rbytey", &rbytey, PirAtE_MSG_DATATYPE_BYTE,0,255,0);
+  PirAtE_ADD_NEW_RECIEVEMSG("rwordy", &rwordy, PirAtE_MSG_DATATYPE_WORD,0,65535,0);
   PirAtE_ADD_NEW_RECIEVEMSG("rbooly", &rbooly, PirAtE_MSG_DATATYPE_BOOL,0,1,0);
-  PirAtE_ADD_NEW_RECIEVEMSG("rchary", &rchary, PirAtE_MSG_DATATYPE_CHAR,0,200,0);
+  PirAtE_ADD_NEW_RECIEVEMSG("rchary", &rchary, PirAtE_MSG_DATATYPE_CHAR,0,255,0);
   // key = PirAtE_ADD_NEW_STRING_RECEIVEMSG(Data_Name, Global_VariableAdress, StringBufferLength)
-  rstringkey = PirAtE_ADD_NEW_STRING_RECEIVEMSG("rstringy", &rstringy, 64);
+  rstringkey = PirAtE_ADD_NEW_STRING_RECEIVEMSG("rstringy", &rstringy, 32);
   pinMode(trigPin, OUTPUT); // Sets the trigPin as an OUTPUT
   pinMode(echoPin, INPUT);  // Sets the echoPin as an INPUT
 

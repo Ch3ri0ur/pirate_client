@@ -1,5 +1,6 @@
 const SerialPort = require('serialport');
-const Readline = require('@serialport/parser-readline');
+const Delimiter = require('@serialport/parser-delimiter');
+const Readyparser = require('@serialport/parser-ready');
 // const parser = port.pipe(new Readline({ delimiter: '\r\n' }))
 
 clientSendBuffer = {};
@@ -26,196 +27,40 @@ findArduino()
         const port = new SerialPort(portName, {
             baudRate: 115200,
         });
-
-        const Delimiter = require('@serialport/parser-delimiter');
-        const parser = port.pipe(
+        // Wait for a start sequence to flush out the Buffers
+        const readyparser = port.pipe(
+            new Readyparser({ delimiter: new Uint8Array([0xee, 0x50, 0x69, 0x72, 0x41, 0x74, 0x45, 0x0a]) }),
+        );
+        // Forward Chunks separated by a \xffPirAtE\n to .on data events
+        const parser = readyparser.pipe(
             new Delimiter({ delimiter: new Uint8Array([0xff, 0x50, 0x69, 0x72, 0x41, 0x74, 0x45, 0x0a]) }),
         );
         // TODO FLUSH THE STREAM TILL DATATYPESIZES
         parser.on('data', (buffer) => {
-            let controlbyte = buffer[0];
-            let data = buffer.slice(1);
-            switch (controlbyte) {
-                case 77:
-                    // M Debug Message
+            switch (buffer[0]) {
+                case 82: // R Request Data
+                    requestDataHandler(port);
+                    break;
+                case 77: // M Debug Message
+                    data = buffer.slice(1);
                     console.log('Debug: ' + data.toString());
                     break;
                 case 80: // P arduino datatype sizes
-                    console.log(data);
-                    datatypeSizeBufferValues = [...data.values()];
-                    let i = 0;
-                    for (i = 0; i < datatypeSizeBufferValues.length; i = i + 3) {
-                        arduinoDatatypeSizes[String.fromCharCode(datatypeSizeBufferValues[i])] =
-                            datatypeSizeBufferValues[i + 1];
-                    }
+                    //console.log(data);
+                    arduinoDatatypeSizesHandler(buffer);
                     console.log(arduinoDatatypeSizes);
                     break;
                 case 84: // T arduino -> node config string
-                    configString = data.slice(1).toString();
-                    console.log(configString);
-                    configComponents = configString.split('$');
-                    console.log(configComponents);
-                    // index$name$type
-                    id = data[0] - 48;
-                    clientSendBuffer_config[id] = {
-                        name: configComponents[1],
-                        type: configComponents[2],
-                    };
+                    arduinoToNoderConfigHandler(buffer);
                     console.log(clientSendBuffer_config);
                     break;
                 case 116: // t node -> arduino config string
-                    configString = data.slice(1).toString();
-                    configComponents = configString.split('$');
-                    // index$name$type$default$max$min
-                    id = data[0] - 48;
-                    arduinoSendBuffer_config[id] = {
-                        name: configComponents[1],
-                        type: configComponents[2],
-                        default: configComponents[3],
-                        max: configComponents[4],
-                        min: configComponents[5],
-                    };
+                    nodeToArduinoConfigHandler(buffer);
                     console.log(arduinoSendBuffer_config);
-                    break;
-                case 82:
-                    // R Request Data
-                    // console.log("request")
-                    if (Object.entries(arduinoSendBuffer).length !== 0) {
-                        entry = Object.entries(arduinoSendBuffer)[0];
-                        delete arduinoSendBuffer[entry[0]];
-                        console.log(entry);
-                        let payload;
-                        let buf;
-                        // TODO Check if the type is compatible with config
-                        console.log(`about to send to arduino with type: ${arduinoSendBuffer_config[entry[0]].type}`);
-                        console.log(arduinoDatatypeSizes);
-                        let payload_size = arduinoDatatypeSizes[arduinoSendBuffer_config[entry[0]].type] + 1;
-                        switch (arduinoSendBuffer_config[entry[0]].type) {
-                            case 'I':
-                                buf = Buffer.alloc(3);
-                                buf.writeInt16LE(entry[1], 1);
-                                break;
-                            case 'U':
-                                buf = Buffer.alloc(3);
-                                buf.writeUInt16LE(entry[1], 1);
-                                break;
-                            case 'L':
-                                buf = Buffer.alloc(5);
-                                buf.writeInt32LE(entry[1], 1);
-                                break;
-                            case 'u':
-                                buf = Buffer.alloc(5);
-                                buf.writeUInt32LE(entry[1], 1);
-                                break;
-                            case 'F':
-                                buf = Buffer.alloc(5);
-                                buf.writeFloatLE(entry[1], 1);
-                                break;
-                            case 'D':
-                                buf = Buffer.alloc(5);
-                                buf.writeFloatLE(entry[1], 1);
-                                break;
-                            case 'B':
-                                buf = Buffer.alloc(2);
-                                buf.writeUInt8(entry[1], 1);
-                                break;
-                            case 'W':
-                                buf = Buffer.alloc(3);
-                                buf.writeUInt16LE(entry[1], 1);
-                                break;
-                            case 'b':
-                                buf = Buffer.alloc(2);
-                                buf.writeUInt8(entry[1], 1);
-                                break;
-                            case 'C':
-                                buf = Buffer.alloc(2);
-                                buf.write(entry[1], 1, 'ascii');
-                                break;
-                            case 'S':
-                                buf = Buffer.alloc(entry[1].length + 2);
-                                buf[buf.byteLength - 1] = 00;
-                                buf.write(entry[1], 1, 'ascii');
-                                break;
-                        }
-                        buf[0] = parseInt(entry[0]) + 48;
-                        console.log(`Sending to Arduino created payload_size ${payload_size}`);
-                        console.log(buf);
-                        port.write(buf);
-                    } else {
-                        console.log('nothing to send');
-                        let buf = Buffer.alloc(1);
-                        buf[0] = 0x29;
-                        console.log(buf);
-                        port.write(buf);
-                    }
                     break;
                 default:
                     // receive Data
-                    let index = buffer[1];
-                    data = buffer.slice(2);
-                    let value;
-                    // ? Is it necessary to send type if config was declared beforehand?
-                    switch (controlbyte) {
-                        case 66: // B Byte
-                            value = data.readUIntLE(0, data.length);
-                            //console.log('byte: ' + value);
-                            break;
-                        case 67: // C char
-                            value = data.toString();
-                            //console.log('char: ' + value);
-                            break;
-                        case 68: // D double
-                            value = data.readFloatLE();
-                            //console.log('double: ' + value);
-                            break;
-                        case 70: // F float
-                            value = data.readFloatLE();
-                            //console.log('float: ' + value);
-                            break;
-                        case 73: // I int
-                            value = data.readIntLE(0, data.length);
-                            //console.log('got int: ' + value);
-                            break;
-                        case 76: // L long
-                            value = data.readIntLE(0, data.length);
-                            //console.log('long: ' + value);
-                            break;
-                        case 83: // S string
-                            value = data.toString();
-                            //console.log('String: ' + value);
-                            break;
-                        case 85: // U unsigned int
-                            value = data.readUIntLE(0, data.length);
-                            //console.log('uint: ' + value);
-                            break;
-                        case 87: // W word
-                            value = data.readUIntLE(0, data.length);
-                            //console.log('word: ' + value);
-                            break;
-                        case 98: // b boolean
-                            value = data.readUInt8() ? true : false;
-                            //console.log('Boolean: ' + value);
-                            break;
-                        case 117: // u unsigned long
-                            value = data.readUIntLE(0, data.length);
-                            //console.log('ulong: ' + value);
-                            break;
-                        default:
-                            console.log('----------- Fallthrough, unknown controlbyte ----------');
-                            console.log(controlbyte);
-                            console.log(data);
-                            value = null;
-                    }
-                    if (value) {
-                        // if data is to be sent add to send buffer
-                        console.log(value);
-                        ts = Date.now();
-                        if (clientSendBuffer[ts]) {
-                            clientSendBuffer[ts] = [...clientSendBuffer[ts], { i: index - 48, v: value }];
-                        } else {
-                            clientSendBuffer[ts] = [{ i: index - 48, v: value }];
-                        }
-                    }
+                    recieveDataHandler(buffer);
             }
         });
     })
@@ -224,18 +69,29 @@ findArduino()
         process.exit(1);
     });
 
-// var testLoadID2 = setInterval(() => {
-//     //   console.log(clientSendBuffer);
-//     // console.log("reloading!!!!")
-//     if (Object.entries(arduinoSendBuffer_config).length !== 0) {
-//         // send stuff
-//         // console.log(JSON.stringify(clientSendBuffer));
-//         arduinoSendBuffer = JSON.parse(JSON.stringify(arduinoSendBuffer_config));
-//         // arduinoSendBuffer = Object.assign(arduinoSendBuffer_template);
-//     } else {
-//         // nothing to send
-//     }
-// }, 5000);
+var testLoadID = setInterval(() => {
+    //   console.log(clientSendBuffer);
+    // console.log("reloading!!!!")
+    if (Object.entries(arduinoSendBuffer_config).length !== 0) {
+        // send stuff
+        // console.log(JSON.stringify(clientSendBuffer));
+        // arduinoSendBuffer = JSON.parse(JSON.stringify(arduinoSendBuffer_template));
+        // arduinoSendBuffer = Object.assign(arduinoSendBuffer_template);
+        const keys = Object.keys(arduinoSendBuffer_config);
+        let randomIndex = keys[Math.floor(Math.random() * (keys.length - 1))];
+        if (randomIndex !== '10' && randomIndex !== '9') {
+            arduinoSendBuffer[randomIndex] = arduinoSendBuffer_config[randomIndex].max * Math.random();
+        }
+        randomIndex = keys[Math.floor(Math.random() * (keys.length - 1))];
+        if (randomIndex !== '10' && randomIndex !== '9') {
+            arduinoSendBuffer[randomIndex] = arduinoSendBuffer_config[randomIndex].min * Math.random();
+        }
+        //console.log(`in arduino Buffer sending:`);
+        console.log(arduinoSendBuffer);
+    } else {
+        // nothing to send
+    }
+}, 100);
 var testLoadID = setInterval(() => {
     //   console.log(clientSendBuffer);
     // console.log("reloading!!!!")
@@ -249,22 +105,218 @@ var testLoadID = setInterval(() => {
         arduinoSendBuffer[randomIndex] = arduinoSendBuffer_config[randomIndex].max;
         randomIndex = keys[Math.floor(Math.random() * keys.length)];
         arduinoSendBuffer[randomIndex] = arduinoSendBuffer_config[randomIndex].default;
-        console.log(`in arduino Buffer sending:`);
-        console.log(arduinoSendBuffer);
+        randomIndex = keys[Math.floor(Math.random() * keys.length)];
+        arduinoSendBuffer[randomIndex] = arduinoSendBuffer_config[randomIndex].default;
+        randomIndex = keys[Math.floor(Math.random() * keys.length)];
+        arduinoSendBuffer[randomIndex] = arduinoSendBuffer_config[randomIndex].default;
+        randomIndex = keys[Math.floor(Math.random() * keys.length)];
+        arduinoSendBuffer[randomIndex] = arduinoSendBuffer_config[randomIndex].default;
+        randomIndex = keys[Math.floor(Math.random() * keys.length)];
+        arduinoSendBuffer[randomIndex] = arduinoSendBuffer_config[randomIndex].default;
+        randomIndex = keys[Math.floor(Math.random() * keys.length)];
+        arduinoSendBuffer[randomIndex] = arduinoSendBuffer_config[randomIndex].default;
+        randomIndex = keys[Math.floor(Math.random() * keys.length)];
+        arduinoSendBuffer[randomIndex] = arduinoSendBuffer_config[randomIndex].default;
+        randomIndex = keys[Math.floor(Math.random() * keys.length)];
+        arduinoSendBuffer[randomIndex] = arduinoSendBuffer_config[randomIndex].default;
+        //console.log(`in arduino Buffer sending:`);
+        //console.log(arduinoSendBuffer);
     } else {
         // nothing to send
     }
-}, 500);
+}, 1500);
 
 var intervalID = setInterval(() => {
     //   console.log(clientSendBuffer);
     if (Object.entries(clientSendBuffer).length !== 0) {
         // send stuff
-        console.log(`in client Buffer sending:`);
-        console.log(clientSendBuffer);
+        //console.log(`in client Buffer sending:`);
+        //console.log(clientSendBuffer);
         // console.log(JSON.stringify(clientSendBuffer));
         clientSendBuffer = {};
     } else {
         // nothing to send
     }
 }, 100);
+
+function arduinoDatatypeSizesHandler(buffer) {
+    data = buffer.slice(1);
+    datatypeSizeBufferValues = [...data.values()];
+    let i = 0;
+    for (i = 0; i < datatypeSizeBufferValues.length; i = i + 3) {
+        arduinoDatatypeSizes[String.fromCharCode(datatypeSizeBufferValues[i])] = datatypeSizeBufferValues[i + 1];
+    }
+}
+
+function arduinoToNoderConfigHandler(buffer) {
+    const configString = buffer.slice(2).toString();
+    //console.log(configString);
+    const configComponents = configString.split('$');
+    //console.log(configComponents);
+    // index$name$type
+    if (configComponents.length === 3) {
+        const id = buffer[1] - 48;
+        clientSendBuffer_config[id] = {
+            name: configComponents[1],
+            type: configComponents[2],
+        };
+    }
+}
+
+function nodeToArduinoConfigHandler(buffer) {
+    const configString = buffer.slice(2).toString();
+    const configComponents = configString.split('$');
+    // Float and double can not be serial printed with values exceeding ulong
+    if (configComponents.length === 6) {
+        const id = buffer[1] - 48;
+        arduinoSendBuffer_config[id] = {
+            name: configComponents[1],
+            type: configComponents[2],
+            default: configComponents[3],
+            max: configComponents[4],
+            min: configComponents[5],
+        };
+    }
+    // index$name$type$default$max$min
+}
+
+function recieveDataHandler(buffer) {
+    let index = buffer[1];
+    data = buffer.slice(2);
+    //console.log(buffer);
+    let value = undefined;
+    // ? Is it necessary to send type if config was declared beforehand?
+    switch (buffer[0]) {
+        case 66: // B Byte
+            value = data.readUIntLE(0, data.length);
+            //console.log('byte: ' + value);
+            break;
+        case 67: // C char
+            value = data.toString();
+            //console.log('char: ' + value);
+            break;
+        case 68: // D double
+            value = data.readFloatLE();
+            //console.log('double: ' + value);
+            break;
+        case 70: // F float
+            value = data.readFloatLE();
+            //console.log('float: ' + value);
+            break;
+        case 73: // I int
+            value = data.readIntLE(0, data.length);
+            //console.log('got int: ' + value);
+            break;
+        case 76: // L long
+            value = data.readIntLE(0, data.length);
+            //console.log('long: ' + value);
+            break;
+        case 83: // S string
+            value = data.toString();
+            //console.log('String: ' + value);
+            break;
+        case 85: // U unsigned int
+            value = data.readUIntLE(0, data.length);
+            //console.log('uint: ' + value);
+            break;
+        case 87: // W word
+            value = data.readUIntLE(0, data.length);
+            //console.log('word: ' + value);
+            break;
+        case 98: // b boolean
+            value = data.readUInt8() ? true : false;
+            //console.log('Boolean: ' + value);
+            break;
+        case 117: // u unsigned long
+            value = data.readUIntLE(0, data.length);
+            //console.log('ulong: ' + value);
+            break;
+        default:
+            console.log('----------- Fallthrough, unknown controlbyte ----------');
+            console.log(controlbyte);
+            console.log(data);
+            value = null;
+    }
+    if (value !== undefined) {
+        // if data is to be sent add to send buffer
+        //console.log(value);
+        ts = Date.now();
+        if (clientSendBuffer[ts]) {
+            clientSendBuffer[ts] = [...clientSendBuffer[ts], { i: index - 48, v: value }];
+        } else {
+            clientSendBuffer[ts] = [{ i: index - 48, v: value }];
+        }
+    }
+}
+
+function requestDataHandler(port) {
+    if (Object.entries(arduinoSendBuffer).length === 0) {
+        let buf = Buffer.allocUnsafe(1);
+        buf[0] = 0x29;
+        port.write(buf);
+        console.log('no data to Send');
+    } else {
+        let buf = new Buffer.alloc(64);
+        let runningSize = 0;
+        for (const [key, value] of Object.entries(arduinoSendBuffer)) {
+            if (!(key in arduinoSendBuffer_config)) {
+                delete arduinoSendBuffer[key];
+                continue;
+            }
+            let type = arduinoSendBuffer_config[key].type;
+            let size;
+            if (type === 'S') {
+                size = value.length + 1; //end byte + id byte
+            } else {
+                size = arduinoDatatypeSizes[type]; // + id byte
+            }
+            if (runningSize + size + 1 < buf.length) {
+                buf[runningSize] = parseInt(key) + 48;
+                runningSize += 1;
+
+                switch (type) {
+                    case 'I':
+                        buf.writeInt16LE(value, runningSize);
+                        break;
+                    case 'U':
+                        buf.writeUInt16LE(value, runningSize);
+                        break;
+                    case 'L':
+                        buf.writeInt32LE(value, runningSize);
+                        break;
+                    case 'u':
+                        buf.writeUInt32LE(value, runningSize);
+                        break;
+                    case 'F':
+                        buf.writeFloatLE(value, runningSize);
+                        break;
+                    case 'D':
+                        buf.writeFloatLE(value, runningSize);
+                        break;
+                    case 'B':
+                        buf.writeUInt8(value, runningSize);
+                        break;
+                    case 'W':
+                        buf.writeUInt16LE(value, runningSize);
+                        break;
+                    case 'b':
+                        buf.writeUInt8(value, runningSize);
+                        break;
+                    case 'C':
+                        buf.write(value, runningSize, 'ascii');
+                        break;
+                    case 'S':
+                        //buf = Buffer.alloc(keyValuePair[1].length + 2);
+                        buf[runningSize + size + 1] = 00; // ! TEST THIS
+                        buf.write(value, runningSize, 'ascii');
+                        break;
+                }
+                runningSize = runningSize + size;
+                delete arduinoSendBuffer[key];
+            }
+        }
+        console.log(buf);
+        buf = buf.slice(0, runningSize);
+        port.write(buf);
+    }
+}

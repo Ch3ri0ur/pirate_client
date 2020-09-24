@@ -28,10 +28,17 @@ findArduino()
         const port = new SerialPort(portName, {
             baudRate: 115200,
         });
+
         const Delimiter = require('@serialport/parser-delimiter');
-        const parser = port.pipe(
+        const Readyparser = require('@serialport/parser-ready');
+
+        const readyparser = port.pipe(
+            new Readyparser({ delimiter: new Uint8Array([0xee, 0x50, 0x69, 0x72, 0x41, 0x74, 0x45, 0x0a]) }),
+        );
+        const parser = readyparser.pipe(
             new Delimiter({ delimiter: new Uint8Array([0xff, 0x50, 0x69, 0x72, 0x41, 0x74, 0x45, 0x0a]) }),
         );
+
         parser.on('data', (buffer) => {
             let controlbyte = buffer[0];
             let data = buffer.slice(1);
@@ -135,7 +142,7 @@ findArduino()
                         port.write(buf);
                     } else {
                         console.log('nothing to send');
-                        let buf = Buffer.alloc(1);
+                        let buf = Buffer.allocUnsafe(1);
                         buf[0] = 0x29;
                         port.write(buf);
                     }
