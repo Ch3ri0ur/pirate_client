@@ -115,7 +115,7 @@ function nodeToArduinoConfigHandler(buffer) {
 function receiveDataHandler(buffer) {
     let index = buffer[1];
     data = buffer.slice(2);
-    //console.log(buffer);
+    // console.log(buffer);
     let value = undefined;
     // ? Is it necessary to send type if config was declared beforehand?
     switch (buffer[0]) {
@@ -173,11 +173,11 @@ function receiveDataHandler(buffer) {
         // if data is to be sent add to send buffer
         //console.log(value);
         ts = Date.now();
-        if (clientSendBuffer[ts]) {
-            clientSendBuffer[ts] = [...clientSendBuffer[ts], { i: index - 48, v: value }];
-        } else {
-            clientSendBuffer[ts] = [{ i: index - 48, v: value }];
+        const id = index - 48;
+        if (!clientSendBuffer[ts]) {
+            clientSendBuffer[ts] = {};
         }
+        clientSendBuffer[ts][id] = value;
     }
 }
 
@@ -272,7 +272,8 @@ app.get('/getconfig', (req, res) => {
         arduinosend_config: arduinoSendBuffer_config,
     });
 });
-
+let clients = {};
+let counter = 0;
 app.get('/stream', (req, res) => {
     res.set({
         'Content-Type': 'text/event-stream',
@@ -283,30 +284,38 @@ app.get('/stream', (req, res) => {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept',
     });
+    console.log('event source started id:' + counter);
+    let mycount = counter;
+    res.socket.on('end', (e) => {
+        console.log('event source closed id:' + mycount);
+        delete clients[mycount];
+        res.end();
+    });
+    clients[counter] = res;
+    counter++;
+});
 
-    var intervalID = setInterval(() => {
-        //   console.log(clientSendBuffer);
-        if (Object.entries(clientSendBuffer).length !== 0) {
-            // send stuff
-            console.log(clientSendBuffer);
+var intervalID = setInterval(() => {
+    //   console.log(clientSendBuffer);
+    if (Object.entries(clientSendBuffer).length !== 0) {
+        for (let [key, res] of Object.entries(clients)) {
             res.write('event: message\n');
             res.write('data: ' + JSON.stringify(clientSendBuffer) + '\n');
-            // console.log(JSON.stringify(clientSendBuffer));
-            clientSendBuffer = {};
-        } else {
-            // nothing to send
         }
-    }, 100);
-});
+        clientSendBuffer = {};
+    } else {
+        // nothing to send
+    }
+}, 100);
 
 app.post('/ctrl', (req, res) => {
     console.log(req);
-    data = JSON.parse(req.body); // ! is this necessary? above i use express.json()
+    data = req.body; // ! is this necessary? above i use express.json()
     console.log(data);
     for (let [idx, value] of Object.entries(data)) {
         console.log(`${idx}: ${value}`);
         // TODO perhaps check if value matches type and range
-        arduinoSendBuffer[idx] = value;
+        arduinoSendBuffer.set(idx, value);
     }
     // add stuff to arduinoSendBuffer
     res.send('success');
