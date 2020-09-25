@@ -61,7 +61,7 @@
 #endif
 
 //uart 10bit per byte
-#define PirAtE_RECIEVE_PAYLOADBYTE_TIMEOUT_MICROS (10*1000000/PirAtE_Serial_Baudrate)
+#define PirAtE_RECEIVE_PAYLOADBYTE_TIMEOUT_MICROS (10*1000000/PirAtE_Serial_Baudrate)
 
 #ifndef PirAtE_Serial_Baudrate
 #define PirAtE_Serial_Baudrate 115200
@@ -102,9 +102,9 @@ byte PirAtE_MSG_DELIMITER[PirAtE_MSG_DELIMITER_LENGTH] = {0xff,'P','i','r','A','
 #define PirAtE_TRANSMIT_SENDMSG_INFO_LENGTH 1
 #define PirAtE_TRANSMIT_SENDMSG_INFO 'T'
 
-//RECIEVE MSG INFO
-#define PirAtE_TRANSMIT_RECIEVEMSG_INFO_LENGTH 1
-#define PirAtE_TRANSMIT_RECIEVEMSG_INFO 't'
+//RECEIVE MSG INFO
+#define PirAtE_TRANSMIT_RECEIVEMSG_INFO_LENGTH 1
+#define PirAtE_TRANSMIT_RECEIVEMSG_INFO 't'
 
 //NO Data
 #define PirAtE_NO_DATA_LENGTH 1
@@ -151,7 +151,7 @@ byte PirAtE_MSG_DELIMITER[PirAtE_MSG_DELIMITER_LENGTH] = {0xff,'P','i','r','A','
 //String,CharArray
 #define PirAtE_MSG_DATATYPE_STRING 'S'
 #define PirAtE_MSG_DATATYPE_STRING_MAXLENGTH (PirAtE_MSG_DATA_MAXLENGTH-PirAtE_CHARARRAY_END_LENGTH)
-#define PirAtE_RECIEVE_DATATYPE_STRING_MAXLENGTH (PirAtE_Serial_Buffer_Size - PirAtE_CHARARRAY_END_LENGTH-PirAtE_MSG_DATAID_LENGTH)
+#define PirAtE_RECEIVE_DATATYPE_STRING_MAXLENGTH (PirAtE_Serial_Buffer_Size - PirAtE_CHARARRAY_END_LENGTH-PirAtE_MSG_DATAID_LENGTH)
 
 //Offset of actual Data to DataMsg Start
 #define PirAtE_MSG_DATA_OVERHEAD (PirAtE_MSG_DATAID_LENGTH + PirAtE_MSG_DATATYPE_LENGTH)
@@ -165,7 +165,7 @@ byte PirAtE_MSG_DELIMITER[PirAtE_MSG_DELIMITER_LENGTH] = {0xff,'P','i','r','A','
 #define PirAtE_MSG_SENDMODE_AUTO 1
 #define PirAtE_MSG_SENDMODE_MANUEL 0
 
-byte* PirAtE_DATA_SEND_ADRESSES[PirAtE_SendMsg_Amount];
+byte* PirAtE_DATA_SEND_ADDRESSES[PirAtE_SendMsg_Amount];
 byte PirAtE_DATA_SEND_DATASIZE[PirAtE_SendMsg_Amount];
 byte PirAtE_DATA_SEND_DATATYPE_MASK[PirAtE_SendMsg_Amount];
 byte PirAtE_DATA_SEND_SENDMODE_MASK[PirAtE_SendMsg_Amount/8 + (PirAtE_SendMsg_Amount%8?1:0)];
@@ -229,31 +229,31 @@ int PirAtE_SEND_MSG_Index = 0;
   PirAtE_DATA_SEND_NEWDATA_AVAILABLE_MASK[PirAtE_MSG_KEY/8] |= 1 << (PirAtE_MSG_KEY%8);\
 }
 
-#define PirAtE_ADD_NEW_SENDMSG(Data_Name, Global_VariableAdress, PirAtE_MSG_DATATYPE, PirAtE_MSG_SENDMODE)\
+#define PirAtE_ADD_NEW_SENDMSG(Data_Name, Global_VariableAddress, PirAtE_MSG_DATATYPE, PirAtE_MSG_SENDMODE)\
 PirAtE_DEFINED_SEND_MSGS;\
 {\
-  PirAtE_SET_SENDMSG(PirAtE_DEFINED_SEND_MSGS, Global_VariableAdress, PirAtE_MSG_DATATYPE, PirAtE_MSG_SENDMODE)\
+  PirAtE_SET_SENDMSG(PirAtE_DEFINED_SEND_MSGS, Global_VariableAddress, PirAtE_MSG_DATATYPE, PirAtE_MSG_SENDMODE)\
   PirAtE_SEND_SENDMSG_INFO(PirAtE_DEFINED_SEND_MSGS, Data_Name, PirAtE_MSG_DATATYPE);\
   PirAtE_ComType_Serialfunc.write(PirAtE_MSG_DELIMITER, PirAtE_MSG_DELIMITER_LENGTH);\
   PirAtE_DEFINED_SEND_MSGS++;\
 }
 
-void PirAtE_CONFIGURE_SEND(byte PirAtE_MSG_ID, byte* Global_VariableAdress, byte PirAtE_MSG_SENDMODE)
+void PirAtE_CONFIGURE_SEND(byte PirAtE_MSG_ID, byte* Global_VariableAddress, byte PirAtE_MSG_SENDMODE)
 {
   if(PirAtE_MSG_ID >= PirAtE_SendMsg_Amount)
   {
     PirAtE_SEND_DEBUG_MAKRO("ERROR: PirAtE_SendMsg_Amount is already reached")
   }
-  PirAtE_DATA_SEND_ADRESSES[PirAtE_MSG_ID] = (byte*) Global_VariableAdress;
+  PirAtE_DATA_SEND_ADDRESSES[PirAtE_MSG_ID] = (byte*) Global_VariableAddress;
   PirAtE_DATA_SEND_SENDMODE_MASK[PirAtE_MSG_ID/8] &= ~((byte)(1 << (PirAtE_MSG_ID%8)));
   PirAtE_DATA_SEND_SENDMODE_MASK[PirAtE_MSG_ID/8] |= PirAtE_MSG_SENDMODE << (PirAtE_MSG_ID%8);
   PirAtE_DATA_SEND_NEWDATA_AVAILABLE_MASK[PirAtE_MSG_ID/8] &= ~((byte)(1 << (PirAtE_MSG_ID%8)));
   PirAtE_DATA_SEND_NEWDATA_AVAILABLE_MASK[PirAtE_MSG_ID/8] |= PirAtE_MSG_SENDMODE << (PirAtE_MSG_ID%8);
 }
 
-#define PirAtE_SET_SENDMSG(PirAtE_MSG_ID, Global_VariableAdress, PirAtE_MSG_DATATYPE, PirAtE_MSG_SENDMODE)\
+#define PirAtE_SET_SENDMSG(PirAtE_MSG_ID, Global_VariableAddress, PirAtE_MSG_DATATYPE, PirAtE_MSG_SENDMODE)\
 {\
-  PirAtE_CONFIGURE_SEND(PirAtE_MSG_ID, (byte*) Global_VariableAdress, PirAtE_MSG_SENDMODE);\
+  PirAtE_CONFIGURE_SEND(PirAtE_MSG_ID, (byte*) Global_VariableAddress, PirAtE_MSG_SENDMODE);\
   switch (PirAtE_MSG_DATATYPE)\
   {\
     case PirAtE_MSG_DATATYPE_INT:\
@@ -313,10 +313,10 @@ void PirAtE_SEND_SENDMSG_INFO(byte PirAtE_MSG_ID, char* Data_Name, byte PirAtE_M
   PirAtE_ComType_Serialfunc.write(PirAtE_DATA_SEND_DATATYPE_MASK[PirAtE_MSG_ID]);
 }
 
-#define PirAtE_ADD_NEW_STRING_SENDMSG(Data_Name, Global_VariableAdress, StringBufferLength, PirAtE_MSG_SENDMODE)\
+#define PirAtE_ADD_NEW_STRING_SENDMSG(Data_Name, Global_VariableAddress, StringBufferLength, PirAtE_MSG_SENDMODE)\
 PirAtE_DEFINED_SEND_MSGS;\
 {\
-  PirAtE_SET_SENDMSG(PirAtE_DEFINED_SEND_MSGS, Global_VariableAdress, PirAtE_MSG_DATATYPE_STRING, PirAtE_MSG_SENDMODE)\
+  PirAtE_SET_SENDMSG(PirAtE_DEFINED_SEND_MSGS, Global_VariableAddress, PirAtE_MSG_DATATYPE_STRING, PirAtE_MSG_SENDMODE)\
   if(StringBufferLength-PirAtE_CHARARRAY_END_LENGTH > PirAtE_MSG_DATATYPE_STRING_MAXLENGTH)\
   {\
     PirAtE_SEND_DEBUG_MAKRO("ERROR: SendString exceeds PirAtE_MSG_DATATYPE_STRING_MAXLENGTH")\
@@ -345,18 +345,18 @@ PirAtE_DEFINED_SEND_MSGS;\
       {\
         if(PirAtE_DATA_SEND_DATATYPE_MASK[PirAtE_SEND_MSG_Index] == PirAtE_MSG_DATATYPE_STRING && tmpStringSize == 0)\
         {\
-            while(PirAtE_DATA_SEND_ADRESSES[PirAtE_SEND_MSG_Index][tmpStringSize]!=PirAtE_CHARARRAY_END && tmpStringSize <= PirAtE_DATA_SEND_DATASIZE[PirAtE_SEND_MSG_Index])\
+            while(PirAtE_DATA_SEND_ADDRESSES[PirAtE_SEND_MSG_Index][tmpStringSize]!=PirAtE_CHARARRAY_END && tmpStringSize <= PirAtE_DATA_SEND_DATASIZE[PirAtE_SEND_MSG_Index])\
             {\
               tmpStringSize++;\
             }\
             if(PirAtE_DATA_SEND_DATASIZE[PirAtE_SEND_MSG_Index]+1 == tmpStringSize)\
             {\
-              PirAtE_DATA_SEND_ADRESSES[PirAtE_SEND_MSG_Index][tmpStringSize-1]= PirAtE_CHARARRAY_END;\
+              PirAtE_DATA_SEND_ADDRESSES[PirAtE_SEND_MSG_Index][tmpStringSize-1]= PirAtE_CHARARRAY_END;\
             }\
             else if(tmpStringSize == 0)\
             {\
               tmpStringSize = 1;\
-              PirAtE_DATA_SEND_ADRESSES[PirAtE_SEND_MSG_Index][0]= PirAtE_CHARARRAY_END;\
+              PirAtE_DATA_SEND_ADDRESSES[PirAtE_SEND_MSG_Index][0]= PirAtE_CHARARRAY_END;\
             }\
         }\
         if(PirAtE_ComType_Serialfunc.availableForWrite() >= PirAtE_MSG_DELIMITER_LENGTH+PirAtE_MSG_DATA_OVERHEAD+PirAtE_DATA_SEND_DATASIZE[PirAtE_SEND_MSG_Index]||(PirAtE_DATA_SEND_DATATYPE_MASK[PirAtE_SEND_MSG_Index] == PirAtE_MSG_DATATYPE_STRING && PirAtE_ComType_Serialfunc.availableForWrite() >= PirAtE_MSG_DELIMITER_LENGTH+PirAtE_MSG_DATA_OVERHEAD+tmpStringSize))\
@@ -365,12 +365,12 @@ PirAtE_DEFINED_SEND_MSGS;\
           PirAtE_ComType_Serialfunc.write(PirAtE_SEND_MSG_Index+PirAtE_MSG_DATAID_OFFSET);\
           if(PirAtE_DATA_SEND_DATATYPE_MASK[PirAtE_SEND_MSG_Index] == PirAtE_MSG_DATATYPE_STRING)\
           {\
-            PirAtE_ComType_Serialfunc.write(PirAtE_DATA_SEND_ADRESSES[PirAtE_SEND_MSG_Index], tmpStringSize);\
+            PirAtE_ComType_Serialfunc.write(PirAtE_DATA_SEND_ADDRESSES[PirAtE_SEND_MSG_Index], tmpStringSize);\
             tmpStringSize = 0;\
           }\
           else\
           {\
-            PirAtE_ComType_Serialfunc.write(PirAtE_DATA_SEND_ADRESSES[PirAtE_SEND_MSG_Index], PirAtE_DATA_SEND_DATASIZE[PirAtE_SEND_MSG_Index]);\            
+            PirAtE_ComType_Serialfunc.write(PirAtE_DATA_SEND_ADDRESSES[PirAtE_SEND_MSG_Index], PirAtE_DATA_SEND_DATASIZE[PirAtE_SEND_MSG_Index]);\            
           }\
           PirAtE_ComType_Serialfunc.write(PirAtE_MSG_DELIMITER, PirAtE_MSG_DELIMITER_LENGTH);\
           PirAtE_DATA_SEND_NEWDATA_AVAILABLE_MASK[PirAtE_SEND_MSG_Index/8] &= ~((byte)(1 << (PirAtE_SEND_MSG_Index%8)));\
@@ -400,17 +400,17 @@ PirAtE_DEFINED_SEND_MSGS;\
 #define PirAtE_ReceiveMsg_Amount 5
 #endif
 
-byte* PirAtE_DATA_RECEIVE_ADRESSES[PirAtE_ReceiveMsg_Amount];
+byte* PirAtE_DATA_RECEIVE_ADDRESSES[PirAtE_ReceiveMsg_Amount];
 byte PirAtE_DATA_RECEIVE_DATASIZE[PirAtE_ReceiveMsg_Amount];
 byte PirAtE_DATA_RECEIVE_DATATYPE_MASK[PirAtE_ReceiveMsg_Amount];
 byte PirAtE_DATA_RECEIVE_NEWDATA_AVAILABLE_MASK[PirAtE_ReceiveMsg_Amount/8 + (PirAtE_ReceiveMsg_Amount%8?1:0)];
 int PirAtE_DEFINED_RECEIVE_MSGS = 0;
 
 
-#define PirAtE_ADD_NEW_RECIEVEMSG(Data_Name, Global_VariableAdress, PirAtE_MSG_DATATYPE, Default_Value, Max_Value, Min_Value)\
+#define PirAtE_ADD_NEW_RECEIVEMSG(Data_Name, Global_VariableAddress, PirAtE_MSG_DATATYPE, Default_Value, Max_Value, Min_Value)\
 PirAtE_DEFINED_RECEIVE_MSGS;\
 {\
-  PirAtE_SET_RECEIVEMSG(PirAtE_DEFINED_RECEIVE_MSGS, Global_VariableAdress, PirAtE_MSG_DATATYPE)\
+  PirAtE_SET_RECEIVEMSG(PirAtE_DEFINED_RECEIVE_MSGS, Global_VariableAddress, PirAtE_MSG_DATATYPE)\
   PirAtE_SEND_RECEIVEMSG_INFO(PirAtE_DEFINED_RECEIVE_MSGS, Data_Name, PirAtE_MSG_DATATYPE);\
   PirAtE_ComType_Serialfunc.write(PirAtE_TRANSMIT_SEPERATOR);\
   PirAtE_ComType_Serialfunc.print(Default_Value);\
@@ -422,19 +422,19 @@ PirAtE_DEFINED_RECEIVE_MSGS;\
   PirAtE_DEFINED_RECEIVE_MSGS++;\
 }
 
-void PirAtE_CONFIGURE_RECEIVE(byte PirAtE_MSG_ID, byte* Global_VariableAdress)
+void PirAtE_CONFIGURE_RECEIVE(byte PirAtE_MSG_ID, byte* Global_VariableAddress)
 {
   if(PirAtE_MSG_ID >= PirAtE_ReceiveMsg_Amount)
   {
     PirAtE_SEND_DEBUG_MAKRO("ERROR: PirAtE_ReceiveMsg_Amount is already reached")
   }
-  PirAtE_DATA_RECEIVE_ADRESSES[PirAtE_MSG_ID] = (byte*) Global_VariableAdress;
+  PirAtE_DATA_RECEIVE_ADDRESSES[PirAtE_MSG_ID] = (byte*) Global_VariableAddress;
   PirAtE_DATA_RECEIVE_NEWDATA_AVAILABLE_MASK[PirAtE_MSG_ID/8] &= ~((byte)(1 << (PirAtE_MSG_ID%8)));
 }
 
-#define PirAtE_SET_RECEIVEMSG(PirAtE_MSG_ID, Global_VariableAdress,PirAtE_MSG_DATATYPE)\
+#define PirAtE_SET_RECEIVEMSG(PirAtE_MSG_ID, Global_VariableAddress,PirAtE_MSG_DATATYPE)\
 {\
-  PirAtE_CONFIGURE_RECEIVE(PirAtE_MSG_ID, (byte*) Global_VariableAdress);\
+  PirAtE_CONFIGURE_RECEIVE(PirAtE_MSG_ID, (byte*) Global_VariableAddress);\
   switch (PirAtE_MSG_DATATYPE)\
   {\
     case PirAtE_MSG_DATATYPE_INT:\
@@ -479,14 +479,14 @@ void PirAtE_CONFIGURE_RECEIVE(byte PirAtE_MSG_ID, byte* Global_VariableAdress)
       break;\
     case PirAtE_MSG_DATATYPE_STRING:\
       PirAtE_DATA_RECEIVE_DATATYPE_MASK[PirAtE_MSG_ID] = PirAtE_MSG_DATATYPE_STRING;\
-      PirAtE_DATA_RECEIVE_DATASIZE[PirAtE_MSG_ID] = PirAtE_RECIEVE_DATATYPE_STRING_MAXLENGTH;\
+      PirAtE_DATA_RECEIVE_DATASIZE[PirAtE_MSG_ID] = PirAtE_RECEIVE_DATATYPE_STRING_MAXLENGTH;\
       break;\
   }\
 }
 
 void PirAtE_SEND_RECEIVEMSG_INFO(byte PirAtE_MSG_ID, char* Data_Name, byte PirAtE_MSG_DATATYPE)\
 {\
-  PirAtE_ComType_Serialfunc.write(PirAtE_TRANSMIT_RECIEVEMSG_INFO);\
+  PirAtE_ComType_Serialfunc.write(PirAtE_TRANSMIT_RECEIVEMSG_INFO);\
   PirAtE_ComType_Serialfunc.write(PirAtE_MSG_ID + PirAtE_MSG_DATAID_OFFSET);\
   PirAtE_ComType_Serialfunc.write(PirAtE_TRANSMIT_SEPERATOR);\
   PirAtE_ComType_Serialfunc.print(Data_Name);\
@@ -494,14 +494,14 @@ void PirAtE_SEND_RECEIVEMSG_INFO(byte PirAtE_MSG_ID, char* Data_Name, byte PirAt
   PirAtE_ComType_Serialfunc.write(PirAtE_DATA_RECEIVE_DATATYPE_MASK[PirAtE_MSG_ID]);\
 }
 
-#define PirAtE_ADD_NEW_STRING_RECEIVEMSG(Data_Name, Global_VariableAdress, StringBufferLength)\
+#define PirAtE_ADD_NEW_STRING_RECEIVEMSG(Data_Name, Global_VariableAddress, StringBufferLength)\
 PirAtE_DEFINED_RECEIVE_MSGS;\
 {\
-  PirAtE_SET_RECEIVEMSG(PirAtE_DEFINED_RECEIVE_MSGS, Global_VariableAdress, PirAtE_MSG_DATATYPE_STRING)\
-  if(StringBufferLength-PirAtE_CHARARRAY_END_LENGTH > PirAtE_RECIEVE_DATATYPE_STRING_MAXLENGTH)\
+  PirAtE_SET_RECEIVEMSG(PirAtE_DEFINED_RECEIVE_MSGS, Global_VariableAddress, PirAtE_MSG_DATATYPE_STRING)\
+  if(StringBufferLength-PirAtE_CHARARRAY_END_LENGTH > PirAtE_RECEIVE_DATATYPE_STRING_MAXLENGTH)\
   {\
-    PirAtE_SEND_DEBUG_MAKRO("ERROR: RecieveString exceeds PirAtE_RECIEVE_DATATYPE_STRING_MAXLENGTH")\
-    PirAtE_DATA_RECEIVE_DATASIZE[PirAtE_DEFINED_RECEIVE_MSGS] = PirAtE_RECIEVE_DATATYPE_STRING_MAXLENGTH;\
+    PirAtE_SEND_DEBUG_MAKRO("ERROR: ReceiveString exceeds PirAtE_RECEIVE_DATATYPE_STRING_MAXLENGTH")\
+    PirAtE_DATA_RECEIVE_DATASIZE[PirAtE_DEFINED_RECEIVE_MSGS] = PirAtE_RECEIVE_DATATYPE_STRING_MAXLENGTH;\
   }\
   else\
   {\
@@ -526,14 +526,14 @@ PirAtE_DEFINED_RECEIVE_MSGS;\
     PirAtE_DATA_RECEIVE_NEWDATA_AVAILABLE_MASK[PirAtE_MSG_KEY/8] &= ~((byte)(1 << (PirAtE_MSG_KEY%8)));\
 }
 
-#define PirAte_RECIEVEMSGS_MAKRO()\
+#define PirAte_RECEIVEMSGS_MAKRO()\
 {\
   int receiveCount = 0;\
   byte noData = 0;\
   unsigned long PirAtE_endTime = micros() + PirAtE_AllowedReceiveBlockTime_micros;\
-  int recievedByte = -1;\
-  int recievedBytesCount = 0;\
-  unsigned long PirAtE_RecieveTimeout = 0;\
+  int receivedByte = -1;\
+  int receivedBytesCount = 0;\
+  unsigned long PirAtE_ReceiveTimeout = 0;\
   int msgID = -1;\
   while(PirAtE_ComType_Serialfunc.available()>0 && micros() < PirAtE_endTime && micros() > PirAtE_endTime - PirAtE_AllowedReceiveBlockTime_micros && receiveCount < PirAtE_DEFINED_RECEIVE_MSGS)\
   {\
@@ -546,39 +546,39 @@ PirAtE_DEFINED_RECEIVE_MSGS;\
     else\
     {\
       msgID -= PirAtE_MSG_DATAID_OFFSET;\
-      recievedBytesCount = 0;\
+      receivedBytesCount = 0;\
       if(msgID >= 0 && msgID < PirAtE_DEFINED_RECEIVE_MSGS)\
       {\
         if(PirAtE_DATA_RECEIVE_DATATYPE_MASK[msgID] == PirAtE_MSG_DATATYPE_STRING)\
         {\
           PirAtE_ComType_Serialfunc.read();\
-          while(recievedBytesCount<=PirAtE_DATA_RECEIVE_DATASIZE[msgID])\
+          while(receivedBytesCount<=PirAtE_DATA_RECEIVE_DATASIZE[msgID])\
           {\
-            PirAtE_RecieveTimeout = micros() + PirAtE_RECIEVE_PAYLOADBYTE_TIMEOUT_MICROS;\
+            PirAtE_ReceiveTimeout = micros() + PirAtE_RECEIVE_PAYLOADBYTE_TIMEOUT_MICROS;\
             do\
             {\
-              recievedByte = PirAtE_ComType_Serialfunc.read();\
-              if(micros() < PirAtE_RecieveTimeout - PirAtE_RECIEVE_PAYLOADBYTE_TIMEOUT_MICROS)\
+              receivedByte = PirAtE_ComType_Serialfunc.read();\
+              if(micros() < PirAtE_ReceiveTimeout - PirAtE_RECEIVE_PAYLOADBYTE_TIMEOUT_MICROS)\
               {\
-                PirAtE_RecieveTimeout = micros() + PirAtE_RECIEVE_PAYLOADBYTE_TIMEOUT_MICROS;\
+                PirAtE_ReceiveTimeout = micros() + PirAtE_RECEIVE_PAYLOADBYTE_TIMEOUT_MICROS;\
               }\
-            }while(recievedByte == -1 && micros() < PirAtE_RecieveTimeout);\
-            if(recievedByte == -1)\
+            }while(receivedByte == -1 && micros() < PirAtE_ReceiveTimeout);\
+            if(receivedByte == -1)\
             {\
-              PirAtE_DATA_RECEIVE_ADRESSES[msgID][recievedBytesCount] = PirAtE_CHARARRAY_END;\
+              PirAtE_DATA_RECEIVE_ADDRESSES[msgID][receivedBytesCount] = PirAtE_CHARARRAY_END;\
               break;\
             }\
             else\
             {\
-              PirAtE_DATA_RECEIVE_ADRESSES[msgID][recievedBytesCount] = (byte)recievedByte;\
-              recievedBytesCount++;\
-              if((byte)recievedByte == PirAtE_CHARARRAY_END)\
+              PirAtE_DATA_RECEIVE_ADDRESSES[msgID][receivedBytesCount] = (byte)receivedByte;\
+              receivedBytesCount++;\
+              if((byte)receivedByte == PirAtE_CHARARRAY_END)\
               {\
                 break;\
               }\
-              else if(recievedBytesCount == PirAtE_DATA_RECEIVE_DATASIZE[msgID]+PirAtE_CHARARRAY_END_LENGTH)\
+              else if(receivedBytesCount == PirAtE_DATA_RECEIVE_DATASIZE[msgID]+PirAtE_CHARARRAY_END_LENGTH)\
               {\
-                PirAtE_DATA_RECEIVE_ADRESSES[msgID][recievedBytesCount-1] = PirAtE_CHARARRAY_END;\
+                PirAtE_DATA_RECEIVE_ADDRESSES[msgID][receivedBytesCount-1] = PirAtE_CHARARRAY_END;\
                 while (PirAtE_ComType_Serialfunc.read()!=-1);\
                 break;\
               }\
@@ -590,7 +590,7 @@ PirAtE_DEFINED_RECEIVE_MSGS;\
           if(PirAtE_DATA_RECEIVE_DATASIZE[msgID]+PirAtE_MSG_DATAID_LENGTH <= PirAtE_ComType_Serialfunc.available())\
           {\
             PirAtE_ComType_Serialfunc.read();\
-            recievedBytesCount = PirAtE_ComType_Serialfunc.readBytes(PirAtE_DATA_RECEIVE_ADRESSES[msgID],PirAtE_DATA_RECEIVE_DATASIZE[msgID]);\
+            receivedBytesCount = PirAtE_ComType_Serialfunc.readBytes(PirAtE_DATA_RECEIVE_ADDRESSES[msgID],PirAtE_DATA_RECEIVE_DATASIZE[msgID]);\
           }\
         }\
       }\
@@ -598,7 +598,7 @@ PirAtE_DEFINED_RECEIVE_MSGS;\
       {\
         while (PirAtE_ComType_Serialfunc.read()!=-1);\
       }\
-      if(recievedBytesCount>0)\
+      if(receivedBytesCount>0)\
       {\
         PirAtE_DATA_RECEIVE_NEWDATA_AVAILABLE_MASK[msgID/8] |= 1 << (msgID%8);\
         receiveCount++;\
