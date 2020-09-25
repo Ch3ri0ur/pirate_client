@@ -51,7 +51,7 @@ findArduino()
                     console.log(arduinoDatatypeSizes);
                     break;
                 case 84: // T arduino -> node config string
-                    arduinoToNoderConfigHandler(buffer);
+                    arduinoToNodeConfigHandler(buffer);
                     console.log(clientSendBuffer_config);
                     break;
                 case 116: // t node -> arduino config string
@@ -60,7 +60,7 @@ findArduino()
                     break;
                 default:
                     // receive Data
-                    recieveDataHandler(buffer);
+                    receiveDataHandler(buffer);
             }
         });
     })
@@ -147,7 +147,7 @@ function arduinoDatatypeSizesHandler(buffer) {
     }
 }
 
-function arduinoToNoderConfigHandler(buffer) {
+function arduinoToNodeConfigHandler(buffer) {
     const configString = buffer.slice(2).toString();
     const configComponents = configString.split('$');
     //console.log(configComponents);
@@ -179,7 +179,7 @@ function nodeToArduinoConfigHandler(buffer) {
     }
 }
 
-function recieveDataHandler(buffer) {
+function receiveDataHandler(buffer) {
     let index = buffer[1];
     data = buffer.slice(2);
     //console.log(buffer);

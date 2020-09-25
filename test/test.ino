@@ -104,7 +104,7 @@ void loop()
   PirAtE_SENDMSGS_MAKRO();
   PirAtE_SEND_DEBUG_MAKRO("Recieving now");
   delay(100);
-  PirAte_RECIEVEMSGS_MAKRO();
+  PirAte_RECEIVEMSGS_MAKRO();
   PirAtE_SEND_DEBUG_MAKRO("Sending test debug message now");
   delay(100);
   PirAtE_SEND_DEBUG_MAKRO(rinty);
