@@ -52,21 +52,20 @@ void setup()
   PirAtE_ADD_NEW_STRING_SENDMSG("stringy", &stringy, 32, PirAtE_MSG_SENDMODE_AUTO);
 
   // key = PirAtE_ADD_NEW_RECEIVEMSG(Data_Name, Global_VariableAddress, PirAtE_MSG_DATATYPE, Default_Value, Max_Value, Min_Value)
-  PirAtE_ADD_NEW_RECEIVEMSG("rinty", &rinty, PirAtE_MSG_DATATYPE_INT,0,32767,-32768);
-  PirAtE_ADD_NEW_RECEIVEMSG("ruinty", &ruinty, PirAtE_MSG_DATATYPE_UINT,1,65535,0);
-  PirAtE_ADD_NEW_RECEIVEMSG("rlongy", &rlongy, PirAtE_MSG_DATATYPE_LONG,0,2147483647,-2147483647);
-  PirAtE_ADD_NEW_RECEIVEMSG("rulongy", &rulongy, PirAtE_MSG_DATATYPE_ULONG,4,4294967295U,0);
-  PirAtE_ADD_NEW_RECEIVEMSG("rfloaty", &rfloaty, PirAtE_MSG_DATATYPE_FLOAT,0,3.1e9,-3.1E9);
-  PirAtE_ADD_NEW_RECEIVEMSG("rdoubley", &rdoubley, PirAtE_MSG_DATATYPE_DOUBLE,0,3.1e9,-3.1e9);
-  PirAtE_ADD_NEW_RECEIVEMSG("rbytey", &rbytey, PirAtE_MSG_DATATYPE_BYTE,0,255,0);
-  PirAtE_ADD_NEW_RECEIVEMSG("rwordy", &rwordy, PirAtE_MSG_DATATYPE_WORD,0,65535,0);
-  PirAtE_ADD_NEW_RECEIVEMSG("rbooly", &rbooly, PirAtE_MSG_DATATYPE_BOOL,0,1,0);
-  PirAtE_ADD_NEW_RECEIVEMSG("rchary", &rchary, PirAtE_MSG_DATATYPE_CHAR,0,255,0);
+  PirAtE_ADD_NEW_RECEIVEMSG("rinty", &rinty, PirAtE_MSG_DATATYPE_INT, 0, 32767, -32768);
+  PirAtE_ADD_NEW_RECEIVEMSG("ruinty", &ruinty, PirAtE_MSG_DATATYPE_UINT, 1, 65535, 0);
+  PirAtE_ADD_NEW_RECEIVEMSG("rlongy", &rlongy, PirAtE_MSG_DATATYPE_LONG, 0, 2147483647, -2147483647);
+  PirAtE_ADD_NEW_RECEIVEMSG("rulongy", &rulongy, PirAtE_MSG_DATATYPE_ULONG, 4, 4294967295U, 0);
+  PirAtE_ADD_NEW_RECEIVEMSG("rfloaty", &rfloaty, PirAtE_MSG_DATATYPE_FLOAT, 0, 3.1e9, -3.1E9);
+  PirAtE_ADD_NEW_RECEIVEMSG("rdoubley", &rdoubley, PirAtE_MSG_DATATYPE_DOUBLE, 0, 3.1e9, -3.1e9);
+  PirAtE_ADD_NEW_RECEIVEMSG("rbytey", &rbytey, PirAtE_MSG_DATATYPE_BYTE, 0, 255, 0);
+  PirAtE_ADD_NEW_RECEIVEMSG("rwordy", &rwordy, PirAtE_MSG_DATATYPE_WORD, 0, 65535, 0);
+  PirAtE_ADD_NEW_RECEIVEMSG("rbooly", &rbooly, PirAtE_MSG_DATATYPE_BOOL, 0, 1, 0);
+  PirAtE_ADD_NEW_RECEIVEMSG("rchary", &rchary, PirAtE_MSG_DATATYPE_CHAR, 0, 255, 0);
   // key = PirAtE_ADD_NEW_STRING_RECEIVEMSG(Data_Name, Global_VariableAddress, StringBufferLength)
   rstringkey = PirAtE_ADD_NEW_STRING_RECEIVEMSG("rstringy", &rstringy, 32);
   pinMode(trigPin, OUTPUT); // Sets the trigPin as an OUTPUT
   pinMode(echoPin, INPUT);  // Sets the echoPin as an INPUT
-
 }
 void loop()
 {
@@ -83,10 +82,10 @@ void loop()
   // Calculating the distance
   distance = duration * 0.034 / 2; // Speed of sound wave divided by 2 (go and back)
   // Displays the distance on the Serial Monitor
-  if(PirAtE_IS_NEW_DATA_AVAILABLE(rstringkey))
+  if (PirAtE_IS_NEW_DATA_AVAILABLE(rstringkey))
   {
     strcpy(stringy, rstringy);
-    PirAtE_NEW_DATA_IS_READ(rstringkey)
+    PirAtE_NEW_DATA_IS_READ(rstringkey);
     PirAtE_SEND_DEBUG_MAKRO("New Data 0");
   }
   inty = rinty;
@@ -99,7 +98,7 @@ void loop()
   wordy = rwordy;
   booly = rbooly;
   chary = rchary;
-  
+
   PirAtE_SEND_DEBUG_MAKRO("Sending now");
   delay(100);
   PirAtE_SENDMSGS_MAKRO();

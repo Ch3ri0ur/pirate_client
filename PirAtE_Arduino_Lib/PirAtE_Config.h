@@ -4,7 +4,6 @@
 #define PirAtE_AllowedSendBlockTime_micros 2000ul
 #define PirAtE_AllowedReceiveBlockTime_micros 2000ul
 
-
 /*
 PirAtE_START_COM()
 */
@@ -12,7 +11,6 @@ PirAtE_START_COM()
 #define PirAtE_Serial_Buffer_Size 64
 #define PirAtE_Serial_Baudrate 115200
 #define PirAtE_ComType_Serialfunc Serial
-
 
 /*
 PirAtE_SEND_DEBUG_MAKRO(Msg)
