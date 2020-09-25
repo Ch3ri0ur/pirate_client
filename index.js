@@ -115,7 +115,8 @@ function nodeToArduinoConfigHandler(buffer) {
 function receiveDataHandler(buffer) {
     let index = buffer[1];
     data = buffer.slice(2);
-    // console.log(buffer);
+    console.log(Date.now());
+    console.log(buffer);
     let value = undefined;
     // ? Is it necessary to send type if config was declared beforehand?
     switch (buffer[0]) {
@@ -188,7 +189,7 @@ function requestDataHandler(port) {
         port.write(buf);
         console.log('no data to Send');
     } else {
-        console.log(arduinoSendBuffer);
+        // console.log(arduinoSendBuffer);
         let buf = new Buffer.alloc(64);
         let runningSize = 0;
         for (let [key, value] of arduinoSendBuffer) {
@@ -265,15 +266,19 @@ app.use(express.json());
 
 app.get('/getconfig', (req, res) => {
     console.log(req);
-    console.log(arduinoSendBuffer_config);
     console.log(clientSendBuffer_config);
+    console.log(arduinoSendBuffer_config);
+    console.log(arduinoDatatypeSizes);
     res.json({
         clientsend_config: clientSendBuffer_config,
         arduinosend_config: arduinoSendBuffer_config,
+        arduinoDatatypeSizes: arduinoDatatypeSizes,
     });
 });
+
 let clients = {};
 let counter = 0;
+
 app.get('/stream', (req, res) => {
     res.set({
         'Content-Type': 'text/event-stream',
@@ -312,13 +317,32 @@ app.post('/ctrl', (req, res) => {
     console.log(req);
     data = req.body; // ! is this necessary? above i use express.json()
     console.log(data);
+    let success = true;
     for (let [idx, value] of Object.entries(data)) {
         console.log(`${idx}: ${value}`);
-        // TODO perhaps check if value matches type and range
-        arduinoSendBuffer.set(idx, value);
+        if (idx in arduinoSendBuffer_config) {
+            let type = arduinoSendBuffer_config[idx].type;
+            if (type === 'S' || type === 'C') {
+                if (typeof value === 'string') {
+                    arduinoSendBuffer.set(idx, value);
+                } else {
+                    success = false;
+                }
+            } else if (type) {
+                if (typeof value === 'number') {
+                    arduinoSendBuffer.set(idx, value);
+                } else {
+                    success = false;
+                }
+            }
+        }
     }
-    // add stuff to arduinoSendBuffer
-    res.send('success');
+    if (success) {
+        res.sendStatus(200);
+    } else {
+        res.sendStatus(400);
+    }
+    // TODO perhaps check if value matches type and range
 });
 
 app.use(cors());
