@@ -5,7 +5,7 @@ const Readyparser = require('@serialport/parser-ready');
 
 clientSendBuffer = {};
 clientSendBuffer_config = {};
-arduinoSendBuffer = {};
+arduinoSendBuffer = new Map();
 arduinoSendBuffer_config = {};
 arduinoDatatypeSizes = {};
 
@@ -42,7 +42,7 @@ findArduino()
                     requestDataHandler(port);
                     break;
                 case 77: // M Debug Message
-                    data = buffer.slice(1);
+                    const data = buffer.slice(1);
                     console.log('Debug: ' + data.toString());
                     break;
                 case 80: // P arduino datatype sizes
@@ -70,61 +70,60 @@ findArduino()
     });
 
 var testLoadID = setInterval(() => {
-    //   console.log(clientSendBuffer);
-    // console.log("reloading!!!!")
     if (Object.entries(arduinoSendBuffer_config).length !== 0) {
-        // send stuff
-        // console.log(JSON.stringify(clientSendBuffer));
-        // arduinoSendBuffer = JSON.parse(JSON.stringify(arduinoSendBuffer_template));
-        // arduinoSendBuffer = Object.assign(arduinoSendBuffer_template);
-        const keys = Object.keys(arduinoSendBuffer_config);
-        let randomIndex = keys[Math.floor(Math.random() * (keys.length - 1))];
-        if (randomIndex !== '10' && randomIndex !== '9') {
-            arduinoSendBuffer[randomIndex] = arduinoSendBuffer_config[randomIndex].max * Math.random();
-        }
-        randomIndex = keys[Math.floor(Math.random() * (keys.length - 1))];
-        if (randomIndex !== '10' && randomIndex !== '9') {
-            arduinoSendBuffer[randomIndex] = arduinoSendBuffer_config[randomIndex].min * Math.random();
-        }
-        //console.log(`in arduino Buffer sending:`);
-        console.log(arduinoSendBuffer);
-    } else {
-        // nothing to send
-    }
-}, 100);
-var testLoadID = setInterval(() => {
-    //   console.log(clientSendBuffer);
-    // console.log("reloading!!!!")
-    if (Object.entries(arduinoSendBuffer_config).length !== 0) {
-        // send stuff
-        // console.log(JSON.stringify(clientSendBuffer));
-        // arduinoSendBuffer = JSON.parse(JSON.stringify(arduinoSendBuffer_template));
-        // arduinoSendBuffer = Object.assign(arduinoSendBuffer_template);
         const keys = Object.keys(arduinoSendBuffer_config);
         let randomIndex = keys[Math.floor(Math.random() * keys.length)];
-        arduinoSendBuffer[randomIndex] = arduinoSendBuffer_config[randomIndex].max;
+        if (randomIndex !== '10' && randomIndex !== '9') {
+            // arduinoSendBuffer.set(randomIndex, arduinoSendBuffer_config[randomIndex].max * Math.random());
+        }
+        if (randomIndex === '10') {
+            arduinoSendBuffer.set(randomIndex, 'arduinoSendBuffer_config[randomIndex].max * Math.random()!!!asdfghjkl');
+        }
         randomIndex = keys[Math.floor(Math.random() * keys.length)];
-        arduinoSendBuffer[randomIndex] = arduinoSendBuffer_config[randomIndex].default;
-        randomIndex = keys[Math.floor(Math.random() * keys.length)];
-        arduinoSendBuffer[randomIndex] = arduinoSendBuffer_config[randomIndex].default;
-        randomIndex = keys[Math.floor(Math.random() * keys.length)];
-        arduinoSendBuffer[randomIndex] = arduinoSendBuffer_config[randomIndex].default;
-        randomIndex = keys[Math.floor(Math.random() * keys.length)];
-        arduinoSendBuffer[randomIndex] = arduinoSendBuffer_config[randomIndex].default;
-        randomIndex = keys[Math.floor(Math.random() * keys.length)];
-        arduinoSendBuffer[randomIndex] = arduinoSendBuffer_config[randomIndex].default;
-        randomIndex = keys[Math.floor(Math.random() * keys.length)];
-        arduinoSendBuffer[randomIndex] = arduinoSendBuffer_config[randomIndex].default;
-        randomIndex = keys[Math.floor(Math.random() * keys.length)];
-        arduinoSendBuffer[randomIndex] = arduinoSendBuffer_config[randomIndex].default;
-        randomIndex = keys[Math.floor(Math.random() * keys.length)];
-        arduinoSendBuffer[randomIndex] = arduinoSendBuffer_config[randomIndex].default;
+        if (randomIndex !== '10' && randomIndex !== '9') {
+            arduinoSendBuffer.set(randomIndex, arduinoSendBuffer_config[randomIndex].max * Math.random());
+        }
+        if (randomIndex === '10') {
+            arduinoSendBuffer.set(randomIndex, 'this is a medium String');
+        }
         //console.log(`in arduino Buffer sending:`);
         //console.log(arduinoSendBuffer);
     } else {
         // nothing to send
     }
-}, 1500);
+}, 100);
+// var testLoadID = setInterval(() => {
+//     //   console.log(clientSendBuffer);
+//     // console.log("reloading!!!!")
+//     if (Object.entries(arduinoSendBuffer_config).length !== 0) {
+//         // send stuff
+//         // console.log(JSON.stringify(clientSendBuffer));
+//         // arduinoSendBuffer = JSON.parse(JSON.stringify(arduinoSendBuffer_template));
+//         // arduinoSendBuffer = Object.assign(arduinoSendBuffer_template);
+//         const keys = Object.keys(arduinoSendBuffer_config);
+//         let randomIndex = keys[Math.floor(Math.random() * (keys.length - 1))];
+//         arduinoSendBuffer.set(randomIndex, arduinoSendBuffer_config[randomIndex].max);
+//         randomIndex = keys[Math.floor(Math.random() * (keys.length - 1))];
+//         arduinoSendBuffer.set(randomIndex, arduinoSendBuffer_config[randomIndex].default);
+//         randomIndex = keys[Math.floor(Math.random() * (keys.length - 1))];
+//         arduinoSendBuffer.set(randomIndex, arduinoSendBuffer_config[randomIndex].default);
+//         randomIndex = keys[Math.floor(Math.random() * (keys.length - 1))];
+//         arduinoSendBuffer.set(randomIndex, arduinoSendBuffer_config[randomIndex].default);
+//         randomIndex = keys[Math.floor(Math.random() * (keys.length - 1))];
+//         arduinoSendBuffer.set(randomIndex, arduinoSendBuffer_config[randomIndex].default);
+//         randomIndex = keys[Math.floor(Math.random() * (keys.length - 1))];
+//         arduinoSendBuffer.set(randomIndex, arduinoSendBuffer_config[randomIndex].default);
+//         randomIndex = keys[Math.floor(Math.random() * (keys.length - 1))];
+//         arduinoSendBuffer.set(randomIndex, arduinoSendBuffer_config[randomIndex].default);
+//         randomIndex = keys[Math.floor(Math.random() * (keys.length - 1))];
+//         arduinoSendBuffer.set(randomIndex, arduinoSendBuffer_config[randomIndex].default);
+//         randomIndex = keys[Math.floor(Math.random() * (keys.length - 1))];
+//         arduinoSendBuffer.set(randomIndex, arduinoSendBuffer_config[randomIndex].default); //console.log(`in arduino Buffer sending:`);
+//         //console.log(arduinoSendBuffer);
+//     } else {
+//         // nothing to send
+//     }
+// }, 1500);
 
 var intervalID = setInterval(() => {
     //   console.log(clientSendBuffer);
@@ -150,7 +149,6 @@ function arduinoDatatypeSizesHandler(buffer) {
 
 function arduinoToNoderConfigHandler(buffer) {
     const configString = buffer.slice(2).toString();
-    //console.log(configString);
     const configComponents = configString.split('$');
     //console.log(configComponents);
     // index$name$type
@@ -165,19 +163,20 @@ function arduinoToNoderConfigHandler(buffer) {
 
 function nodeToArduinoConfigHandler(buffer) {
     const configString = buffer.slice(2).toString();
+    // index$name$type$default$max$min
     const configComponents = configString.split('$');
-    // Float and double can not be serial printed with values exceeding ulong
+    // Float and double can not be serial printed with values exceeding ulong (would print "ovf")
     if (configComponents.length === 6) {
         const id = buffer[1] - 48;
         arduinoSendBuffer_config[id] = {
             name: configComponents[1],
             type: configComponents[2],
-            default: configComponents[3],
-            max: configComponents[4],
-            min: configComponents[5],
+            // TODO default, max, min values stored as strings as of now.. perhaps change
+            default: Number(configComponents[3]),
+            max: Number(configComponents[4]),
+            min: Number(configComponents[5]),
         };
     }
-    // index$name$type$default$max$min
 }
 
 function recieveDataHandler(buffer) {
@@ -250,22 +249,27 @@ function recieveDataHandler(buffer) {
 }
 
 function requestDataHandler(port) {
-    if (Object.entries(arduinoSendBuffer).length === 0) {
+    if (arduinoSendBuffer.size === 0) {
         let buf = Buffer.allocUnsafe(1);
         buf[0] = 0x29;
         port.write(buf);
         console.log('no data to Send');
     } else {
+        console.log(arduinoSendBuffer);
         let buf = new Buffer.alloc(64);
         let runningSize = 0;
-        for (const [key, value] of Object.entries(arduinoSendBuffer)) {
+        for (let [key, value] of arduinoSendBuffer) {
             if (!(key in arduinoSendBuffer_config)) {
-                delete arduinoSendBuffer[key];
+                arduinoSendBuffer.delete(key);
                 continue;
             }
             let type = arduinoSendBuffer_config[key].type;
             let size;
             if (type === 'S') {
+                let maxAllowedSize = arduinoSendBuffer_config[key].max;
+                if (value.length > maxAllowedSize) {
+                    value = value.slice(0, maxAllowedSize);
+                }
                 size = value.length + 1; //end byte + id byte
             } else {
                 size = arduinoDatatypeSizes[type]; // + id byte
@@ -312,7 +316,7 @@ function requestDataHandler(port) {
                         break;
                 }
                 runningSize = runningSize + size;
-                delete arduinoSendBuffer[key];
+                arduinoSendBuffer.delete(key);
             }
         }
         console.log(buf);
