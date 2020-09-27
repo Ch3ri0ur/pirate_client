@@ -33,7 +33,6 @@ void loop()
   count++;
   PirAtE_SENDMSGS_MAKRO();
   PirAte_RECEIVEMSGS_MAKRO();
-  delay(10);
   switch (control)
   {
   case 'd': //backward

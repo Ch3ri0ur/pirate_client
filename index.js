@@ -115,10 +115,12 @@ function nodeToArduinoConfigHandler(buffer) {
 function receiveDataHandler(buffer) {
     let index = buffer[1];
     data = buffer.slice(2);
-    console.log(Date.now());
-    console.log(buffer);
+    // If this logging is activated performance degrades drastically
+    //console.log(Date.now());
+    //console.log(buffer);
     let value = undefined;
     // ? Is it necessary to send type if config was declared beforehand?
+    // TODO Sanitize Bufferlength. Readfunc errors with not matching buffer length
     switch (buffer[0]) {
         case 66: // B Byte
             value = data.readUIntLE(0, data.length);
