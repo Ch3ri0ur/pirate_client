@@ -5,6 +5,7 @@ int data2 = 0x31;
 byte data2Key;
 int data3 = 0x00;
 byte data3Key;
+int data4 = 0x00;
 
 void setup()
 {
@@ -13,10 +14,11 @@ void setup()
   // key = PirAtE_ADD_NEW_SENDMSG(Data_Name, Global_VariableAddress, PirAtE_MSG_DATATYPE, PirAtE_MSG_SENDMODE)
   // key = PirAtE_ADD_NEW_STRING_SENDMSG(Data_Name, Global_VariableAddress, StringBufferLength, PirAtE_MSG_SENDMODE)
   PirAtE_ADD_NEW_SENDMSG("data1", &data, PirAtE_MSG_DATATYPE_INT, PirAtE_MSG_SENDMODE_AUTO);
-  PirAtE_ADD_NEW_SENDMSG("data2", &data2, PirAtE_MSG_DATATYPE_INT, PirAtE_MSG_SENDMODE_MANUEL);
+  data2Key = PirAtE_ADD_NEW_SENDMSG("data2", &data2, PirAtE_MSG_DATATYPE_INT, PirAtE_MSG_SENDMODE_MANUEL);
   // key = PirAtE_ADD_NEW_RECEIVEMSG(Data_Name, Global_VariableAddress, PirAtE_MSG_DATATYPE, Default_Value, Max_Value, Min_Value)
   // key = PirAtE_ADD_NEW_STRING_RECEIVEMSG(Data_Name, Global_VariableAddress, StringBufferLength)
-  PirAtE_ADD_NEW_RECEIVEMSG("data3", &data3, PirAtE_MSG_DATATYPE_INT, 0, 200, 0);
+  data3Key = PirAtE_ADD_NEW_RECEIVEMSG("data3", &data3, PirAtE_MSG_DATATYPE_INT, 0, 200, 0);
+  PirAtE_ADD_NEW_RECEIVEMSG("data4", &data4, PirAtE_MSG_DATATYPE_INT, 0, 200, 0);
   delay(1000);
   PirAtE_SEND_DEBUG_MAKRO("Text");
 }
@@ -24,20 +26,18 @@ void setup()
 void loop()
 {
   // put your main code here, to run repeatedly:
-  data += 100;
-  data2 += 1000;
   //PirAtE_IS_NEW_DATA_TO_SEND(PirAtE_MSG_ID)
-  PirAtE_IS_NEW_DATA_TO_SEND(1);
+  PirAtE_IS_NEW_DATA_TO_SEND(data2Key);
   PirAtE_SENDMSGS_MAKRO();
   PirAte_RECEIVEMSGS_MAKRO();
   //if(PirAtE_IS_NEW_DATA_AVAILABLE(PirAtE_MSG_ID))
-  if (PirAtE_IS_NEW_DATA_AVAILABLE(0))
+  if (PirAtE_IS_NEW_DATA_AVAILABLE(data3Key))
   {
     PirAtE_SEND_DEBUG_MAKRO("DataRead");
     data = data3;
     //PirAtE_NEW_DATA_IS_READ(PirAtE_MSG_ID)
-    PirAtE_NEW_DATA_IS_READ(0);
+    PirAtE_NEW_DATA_IS_READ(data3Key);
   }
-
-  delay(1000);
+  data2 = data4;
+  //delay(20);
 }
