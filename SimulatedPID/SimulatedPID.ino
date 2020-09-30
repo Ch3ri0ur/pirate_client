@@ -86,9 +86,9 @@ void setup()
   // key = PirAtE_ADD_NEW_STRING_RECEIVEMSG(Data_Name, Global_VariableAddress, StringBufferLength)
   PirAtE_ADD_NEW_RECEIVEMSG("Run", &Run, PirAtE_MSG_DATATYPE_BOOL, Run, 1, 0);
   PirAtE_ADD_NEW_RECEIVEMSG("Setpoint", &setpoint, PirAtE_MSG_DATATYPE_FLOAT, setpoint, 1000, 0);
-  PirAtE_ADD_NEW_RECEIVEMSG("kp", &kp, PirAtE_MSG_DATATYPE_FLOAT, kp, 20, 0);
-  PirAtE_ADD_NEW_RECEIVEMSG("ki", &ki, PirAtE_MSG_DATATYPE_FLOAT, ki, 20, 0);
-  PirAtE_ADD_NEW_RECEIVEMSG("kd", &kd, PirAtE_MSG_DATATYPE_FLOAT, kd, 20, 0);
+  PirAtE_ADD_NEW_RECEIVEMSG("kp", &kp, PirAtE_MSG_DATATYPE_FLOAT, kp, 5, 0);
+  PirAtE_ADD_NEW_RECEIVEMSG("ki", &ki, PirAtE_MSG_DATATYPE_FLOAT, ki, 2, 0);
+  PirAtE_ADD_NEW_RECEIVEMSG("kd", &kd, PirAtE_MSG_DATATYPE_FLOAT, kd, 1, 0);
   newModelValueKey = PirAtE_ADD_NEW_RECEIVEMSG("Set Model Value", &newModelValue, PirAtE_MSG_DATATYPE_FLOAT, 0, 1000, 0);
   PirAtE_ADD_NEW_RECEIVEMSG("Slow down", &slowdown, PirAtE_MSG_DATATYPE_FLOAT, slowdown, 1, 0);
   delay(1000);
