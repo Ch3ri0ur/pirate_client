@@ -1,3 +1,6 @@
+#define PirAtE_SendMsg_Amount 6
+#define PirAtE_ReceiveMsg_Amount 7
+
 #include "Arduino.h"
 #include "PirAtE.h"
 
@@ -20,6 +23,9 @@ float setpoint = 100;
 float actualValue = 0;
 
 float oldDif = 0;
+float maxPID = 500;
+float minPID = 0;
+
 unsigned long PIDTime = micros();
 void resetPID()
 {
@@ -35,11 +41,27 @@ float calcPID()
   PIDTime = micros();
   P = kp * dif;
   I = (dif * ki / 1000000) * timedif + I;
+  if (I > maxPID)
+  {
+    I = maxPID;
+  }
+  if (I < minPID)
+  {
+    I = minPID;
+  }
   if (timedif == 0)
     timedif = 1;
   D = ((dif - oldDif) * kd * 1000000) / timedif;
   oldDif = dif;
   PID = P + I + D;
+  if (PID > maxPID)
+  {
+    PID = maxPID;
+  }
+  if (PID < minPID)
+  {
+    PID = minPID;
+  }
   return PID;
 }
 
@@ -51,8 +73,8 @@ float modelValue = 0;
 float speedValue = 0;
 float force = 0;
 float counterForce = 100;
-float forceReduction = 0.1;
-float slowdown = 0.001;
+float forceReduction = 1;
+float slowdown = 1;
 
 unsigned long modelTime = micros();
 float SimulatedModel(float controlValue)
@@ -78,6 +100,7 @@ void setup()
   // key = PirAtE_ADD_NEW_STRING_SENDMSG(Data_Name, Global_VariableAddress, StringBufferLength, PirAtE_MSG_SENDMODE)
 
   PirAtE_ADD_NEW_SENDMSG("Actual Value", &actualValue, PirAtE_MSG_DATATYPE_FLOAT, PirAtE_MSG_SENDMODE_AUTO);
+  PirAtE_ADD_NEW_SENDMSG("Target Value", &setpoint, PirAtE_MSG_DATATYPE_FLOAT, PirAtE_MSG_SENDMODE_AUTO);
   PirAtE_ADD_NEW_SENDMSG("PID", &PID, PirAtE_MSG_DATATYPE_FLOAT, PirAtE_MSG_SENDMODE_AUTO);
   PirAtE_ADD_NEW_SENDMSG("P", &P, PirAtE_MSG_DATATYPE_FLOAT, PirAtE_MSG_SENDMODE_AUTO);
   PirAtE_ADD_NEW_SENDMSG("I", &I, PirAtE_MSG_DATATYPE_FLOAT, PirAtE_MSG_SENDMODE_AUTO);
