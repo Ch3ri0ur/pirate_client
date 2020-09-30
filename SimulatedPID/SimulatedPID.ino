@@ -1,7 +1,7 @@
 #include "Arduino.h"
 #include "PirAtE.h"
 
-bool Run = false;
+bool Run = true;
 
 //PID Stuff
 float PID = 0;
@@ -15,7 +15,7 @@ float ki = 0.1;
 
 float kd = 0.001;
 
-float setpoint =  0;
+float setpoint =  100;
 
 float actualValue = 0;
 
@@ -87,7 +87,7 @@ void setup()
   // key = PirAtE_ADD_NEW_RECEIVEMSG(Data_Name, Global_VariableAddress, PirAtE_MSG_DATATYPE, Default_Value, Max_Value, Min_Value)
   // key = PirAtE_ADD_NEW_STRING_RECEIVEMSG(Data_Name, Global_VariableAddress, StringBufferLength)
   PirAtE_ADD_NEW_RECEIVEMSG("Run", &Run, PirAtE_MSG_DATATYPE_BOOL, 0, 1, 0);
-  PirAtE_ADD_NEW_RECEIVEMSG("Setpoint", &setpoint, PirAtE_MSG_DATATYPE_FLOAT, 0, 200, -200);
+  PirAtE_ADD_NEW_RECEIVEMSG("Setpoint", &setpoint, PirAtE_MSG_DATATYPE_FLOAT, 100, 200, 0);
   PirAtE_ADD_NEW_RECEIVEMSG("kp", &kp, PirAtE_MSG_DATATYPE_FLOAT, 0, 20, 0);
   PirAtE_ADD_NEW_RECEIVEMSG("ki", &ki, PirAtE_MSG_DATATYPE_FLOAT, 0, 20, 0);
   PirAtE_ADD_NEW_RECEIVEMSG("kd", &kd, PirAtE_MSG_DATATYPE_FLOAT, 0, 20, 0);
