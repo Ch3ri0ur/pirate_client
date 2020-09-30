@@ -1,9 +1,9 @@
 #define PirAtE_SendMsg_Amount 5
 #define PirAtE_ReceiveMsg_Amount 6
-#define PirAtE_SendMSGInterVal_micros 5000000ul
+#define PirAtE_SendMSGInterVal_micros 16000ul
 #define PirAtE_AllowedSendBlockTime_micros 2000ul
 #define PirAtE_AllowActiveWaitingOnSend false
-#define PirAtE_RequestInterVal_micros 5000000ul
+#define PirAtE_RequestInterVal_micros 1000000ul
 #define PirAtE_AllowedReceiveBlockTime_micros 200ul
 
 /*
