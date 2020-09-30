@@ -15,7 +15,7 @@ void setup()
 {
   PirAtE_START_COM();
   // key = PirAtE_ADD_NEW_SENDMSG(Data_Name, Global_VariableAdress, PirAtE_MSG_DATATYPE, PirAtE_MSG_SENDMODE)
-  //PirAtE_ADD_NEW_SENDMSG("duration", &duration, PirAtE_MSG_DATATYPE_ULONG, PirAtE_MSG_SENDMODE_AUTO);
+  PirAtE_ADD_NEW_SENDMSG("duration", &duration, PirAtE_MSG_DATATYPE_ULONG, PirAtE_MSG_SENDMODE_AUTO);
   PirAtE_ADD_NEW_SENDMSG("distance", &distance, PirAtE_MSG_DATATYPE_ULONG, PirAtE_MSG_SENDMODE_AUTO);
 
   // key = PirAtE_ADD_NEW_RECEIVEMSG(Data_Name, Global_VariableAdress, PirAtE_MSG_DATATYPE, Default_Value, Max_Value, Min_Value)
@@ -26,7 +26,7 @@ void setup()
 }
 void loop()
 {
-  delay(10);
+  delay(16);
   digitalWrite(trigPin, LOW);
   delayMicroseconds(2);
   // Sets the trigPin HIGH (ACTIVE) for 10 microseconds

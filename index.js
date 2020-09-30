@@ -313,7 +313,7 @@ var intervalID = setInterval(() => {
     } else {
         // nothing to send
     }
-}, 100);
+}, 16);
 
 app.post('/ctrl', (req, res) => {
     console.log(req);
