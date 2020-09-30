@@ -15,7 +15,7 @@ float ki = 0.5;
 
 float kd = 0.001;
 
-float setpoint =  100;
+float setpoint = 100;
 
 float actualValue = 0;
 
@@ -23,7 +23,7 @@ float oldDif = 0;
 unsigned long PIDTime = micros();
 void resetPID()
 {
-  I= 0;
+  I = 0;
   oldDif = 0;
   PIDTime = micros();
 }
@@ -34,15 +34,14 @@ float calcPID()
   unsigned long timedif = micros() - PIDTime;
   PIDTime = micros();
   P = kp * dif;
-  I = (dif*ki/1000000) * timedif + I;
-  if(timedif == 0)
-    timedif =1;
-  D = ((dif - oldDif)*kd*1000000)/timedif;
+  I = (dif * ki / 1000000) * timedif + I;
+  if (timedif == 0)
+    timedif = 1;
+  D = ((dif - oldDif) * kd * 1000000) / timedif;
   oldDif = dif;
-  PID = P+I+D;
+  PID = P + I + D;
   return PID;
 }
-
 
 //Model Stuff
 float newModelValue = 0;
@@ -60,9 +59,9 @@ float SimulatedModel(float controlValue)
 {
   unsigned long timedif = (micros() - modelTime);
   modelTime = micros();
-  modelValue += (speedValue * timedif)*slowdown/1000000;
-  speedValue += (controlValue - modelValue*forceReduction - counterForce)* timedif*slowdown/1000000;
-  if(modelValue <0)
+  modelValue += (speedValue * timedif) * slowdown / 1000000;
+  speedValue += (controlValue - modelValue * forceReduction - counterForce) * timedif * slowdown / 1000000;
+  if (modelValue < 0)
     modelValue = 0;
   return modelValue;
 }
@@ -71,16 +70,13 @@ void SetModelValue()
   modelValue = newModelValue;
 }
 
-
-
-
 void setup()
 {
   // Starting PirAtE
   PirAtE_START_COM();
   // key = PirAtE_ADD_NEW_SENDMSG(Data_Name, Global_VariableAddress, PirAtE_MSG_DATATYPE, PirAtE_MSG_SENDMODE)
   // key = PirAtE_ADD_NEW_STRING_SENDMSG(Data_Name, Global_VariableAddress, StringBufferLength, PirAtE_MSG_SENDMODE)
-  
+
   PirAtE_ADD_NEW_SENDMSG("Actual Value", &actualValue, PirAtE_MSG_DATATYPE_FLOAT, PirAtE_MSG_SENDMODE_AUTO);
   PirAtE_ADD_NEW_SENDMSG("PID", &PID, PirAtE_MSG_DATATYPE_FLOAT, PirAtE_MSG_SENDMODE_AUTO);
   PirAtE_ADD_NEW_SENDMSG("P", &P, PirAtE_MSG_DATATYPE_FLOAT, PirAtE_MSG_SENDMODE_AUTO);
@@ -101,7 +97,7 @@ void setup()
 
 void loop()
 {
-  if(Run)
+  if (Run)
   {
     //if(PirAtE_IS_NEW_DATA_AVAILABLE(PirAtE_MSG_ID))
     if (PirAtE_IS_NEW_DATA_AVAILABLE(newModelValueKey))
