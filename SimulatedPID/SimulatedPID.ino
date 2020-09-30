@@ -9,9 +9,9 @@ float P = 0;
 float I = 0;
 float D = 0;
 
-float kp = 1;
+float kp = 0.1;
 
-float ki = 0.1;
+float ki = 0.5;
 
 float kd = 0.001;
 
@@ -51,14 +51,14 @@ float speedValue = 0;
 float force = 0;
 float counterForce = 100;
 float forceReduction = 0.1;
-
+float slowdown = 0.001;
 
 unsigned long modelTime = micros();
 float SimulatedModel(float controlValue)
 {
   unsigned long timedif = micros() - modelTime;
   modelTime = micros();
-  modelValue += (speedValue * timedif)/1000000;
+  modelValue += (speedValue * timedif)/(1000000*slowdown);
   speedValue += controlValue - modelValue*forceReduction - counterForce;
   if(modelValue <0)
     modelValue = 0;
@@ -86,12 +86,13 @@ void setup()
   PirAtE_ADD_NEW_SENDMSG("D", &D, PirAtE_MSG_DATATYPE_FLOAT, PirAtE_MSG_SENDMODE_AUTO);
   // key = PirAtE_ADD_NEW_RECEIVEMSG(Data_Name, Global_VariableAddress, PirAtE_MSG_DATATYPE, Default_Value, Max_Value, Min_Value)
   // key = PirAtE_ADD_NEW_STRING_RECEIVEMSG(Data_Name, Global_VariableAddress, StringBufferLength)
-  PirAtE_ADD_NEW_RECEIVEMSG("Run", &Run, PirAtE_MSG_DATATYPE_BOOL, 0, 1, 0);
-  PirAtE_ADD_NEW_RECEIVEMSG("Setpoint", &setpoint, PirAtE_MSG_DATATYPE_FLOAT, 100, 200, 0);
-  PirAtE_ADD_NEW_RECEIVEMSG("kp", &kp, PirAtE_MSG_DATATYPE_FLOAT, 0, 20, 0);
-  PirAtE_ADD_NEW_RECEIVEMSG("ki", &ki, PirAtE_MSG_DATATYPE_FLOAT, 0, 20, 0);
-  PirAtE_ADD_NEW_RECEIVEMSG("kd", &kd, PirAtE_MSG_DATATYPE_FLOAT, 0, 20, 0);
-  newModelValueKey = PirAtE_ADD_NEW_RECEIVEMSG("Set Model Value", &newModelValue, PirAtE_MSG_DATATYPE_FLOAT, 0, 200, -200);
+  PirAtE_ADD_NEW_RECEIVEMSG("Run", &Run, PirAtE_MSG_DATATYPE_BOOL, Run, 1, 0);
+  PirAtE_ADD_NEW_RECEIVEMSG("Setpoint", &setpoint, PirAtE_MSG_DATATYPE_FLOAT, setpoint, 1000, 0);
+  PirAtE_ADD_NEW_RECEIVEMSG("kp", &kp, PirAtE_MSG_DATATYPE_FLOAT, kp, 20, 0);
+  PirAtE_ADD_NEW_RECEIVEMSG("ki", &ki, PirAtE_MSG_DATATYPE_FLOAT, ki, 20, 0);
+  PirAtE_ADD_NEW_RECEIVEMSG("kd", &kd, PirAtE_MSG_DATATYPE_FLOAT, kd, 20, 0);
+  newModelValueKey = PirAtE_ADD_NEW_RECEIVEMSG("Set Model Value", &newModelValue, PirAtE_MSG_DATATYPE_FLOAT, 0, 1000, 0);
+  PirAtE_ADD_NEW_RECEIVEMSG("Slow down", &slowdown, PirAtE_MSG_DATATYPE_FLOAT, slowdown, 1, 0);
   delay(1000);
   PirAtE_SEND_DEBUG_MAKRO("All Setup");
 }
