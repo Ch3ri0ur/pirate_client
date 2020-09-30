@@ -35,6 +35,8 @@ float calcPID()
   PIDTime = micros();
   P = kp * dif;
   I = (dif*ki/1000000) * timedif + I;
+  if(timedif == 0)
+    timedif =1;
   D = ((dif - oldDif)*kd*1000000)/timedif;
   oldDif = dif;
   PID = P+I+D;
@@ -56,10 +58,10 @@ float slowdown = 0.001;
 unsigned long modelTime = micros();
 float SimulatedModel(float controlValue)
 {
-  unsigned long timedif = micros() - modelTime;
+  unsigned long timedif = (micros() - modelTime);
   modelTime = micros();
-  modelValue += (speedValue * timedif)/(1000000*slowdown);
-  speedValue += controlValue - modelValue*forceReduction - counterForce;
+  modelValue += (speedValue * timedif)*slowdown/1000000;
+  speedValue += (controlValue - modelValue*forceReduction - counterForce)* timedif*slowdown/1000000;
   if(modelValue <0)
     modelValue = 0;
   return modelValue;
