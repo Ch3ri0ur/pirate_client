@@ -307,7 +307,7 @@ var intervalID = setInterval(() => {
     if (Object.entries(clientSendBuffer).length !== 0) {
         for (let [key, res] of Object.entries(clients)) {
             res.write('event: message\n');
-            res.write('data: ' + JSON.stringify(clientSendBuffer) + '\n');
+            res.write('data: ' + JSON.stringify(clientSendBuffer) + '\n\n');
         }
         clientSendBuffer = {};
     } else {
@@ -349,6 +349,6 @@ app.post('/ctrl', (req, res) => {
 
 app.use(cors());
 
-const PORT = 3000;
+const PORT = 9876;
 
 app.listen(PORT, () => console.log(`The server is listening on port ${PORT}`));
