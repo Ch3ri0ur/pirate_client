@@ -240,11 +240,11 @@ function receiveDataHandler(buffer) {
         // if data is to be sent add to send buffer
         //console.log(value);
         ts = Date.now();
-        if (clientSendBuffer[ts]) {
-            clientSendBuffer[ts] = [...clientSendBuffer[ts], { i: index - 48, v: value }];
-        } else {
-            clientSendBuffer[ts] = [{ i: index - 48, v: value }];
+        const id = index - 48;
+        if (!clientSendBuffer[ts]) {
+            clientSendBuffer[ts] = {};
         }
+        clientSendBuffer[ts][id] = value;
     }
 }
 
@@ -255,7 +255,7 @@ function requestDataHandler(port) {
         port.write(buf);
         console.log('no data to Send');
     } else {
-        console.log(arduinoSendBuffer);
+        // console.log(arduinoSendBuffer);
         let buf = new Buffer.alloc(64);
         let runningSize = 0;
         for (let [key, value] of arduinoSendBuffer) {
