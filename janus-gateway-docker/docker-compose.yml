@@ -1,0 +1,24 @@
+version: '2.1'
+services:
+
+  #
+  # janus-gateway
+  #
+  janus-gateway:
+    image: 'ch3ri0ur/janus:latest'
+    command: ["/usr/local/bin/janus", "-F", "/usr/local/etc/janus"]
+    network_mode: "host"
+    ports:
+      - "8004:8004"
+      - "8088:8088"
+      - "8089:8089"
+      - "8889:8889"
+      - "8000:8000"
+      - "7088:7088"
+      - "7089:7089"
+      - "10000-10200:10000-10200/udp"
+    volumes:
+      - "./conf/janus.jcfg:/usr/local/etc/janus/janus.jcfg"
+      - "./conf/janus.transport.http.jcfg:/usr/local/etc/janus/janus.transport.http.jcfg"
+      - "./conf/janus.plugin.streaming.jcfg:/usr/local/etc/janus/janus.plugin.streaming.jcfg"
+    restart: always
