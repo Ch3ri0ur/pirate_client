@@ -1,24 +1,36 @@
 version: '2.1'
 services:
-
-  #
-  # janus-gateway
-  #
-  janus-gateway:
-    image: 'ch3ri0ur/janus:latest'
-    command: ["/usr/local/bin/janus", "-F", "/usr/local/etc/janus"]
-    network_mode: "host"
-    ports:
-      - "8004:8004"
-      - "8088:8088"
-      - "8089:8089"
-      - "8889:8889"
-      - "8000:8000"
-      - "7088:7088"
-      - "7089:7089"
-      - "10000-10200:10000-10200/udp"
-    volumes:
-      - "./conf/janus.jcfg:/usr/local/etc/janus/janus.jcfg"
-      - "./conf/janus.transport.http.jcfg:/usr/local/etc/janus/janus.transport.http.jcfg"
-      - "./conf/janus.plugin.streaming.jcfg:/usr/local/etc/janus/janus.plugin.streaming.jcfg"
-    restart: always
+    gstreamer-video:
+        image: ivadim/fruitnanny-gstreamer
+        restart: always
+        privileged: true
+        network_mode: 'host'
+        depends_on:
+            - janus-gateway
+        volumes:
+            - /etc/timezone:/etc/timezone:ro
+            - /etc/localtime:/etc/localtime:ro
+        devices:
+            - '/dev/vchiq:/dev/vchiq'
+        command: gst-launch-1.0 -v rpicamsrc name=src preview=0 exposure-mode=night fullscreen=0 bitrate=1000000 annotation-mode=time+date annotation-text-size=20 ! video/x-h264,width=960,height=540,framerate=30/1,profile=constrained-baseline ! queue max-size-bytes=0 max-size-buffers=0 ! h264parse ! rtph264pay config-interval=1 pt=96 ! queue ! udpsink host=127.0.0.1 port=8004  sync=false
+    #
+    # janus-gateway
+    #
+    janus-gateway:
+        image: 'ch3ri0ur/janus:latest'
+        command: ['/usr/local/bin/janus', '-F', '/usr/local/etc/janus']
+        network_mode: 'host'
+        ports:
+            - '8004:8004'
+            - '8088:8088'
+            - '8089:8089'
+            - '8889:8889'
+            - '8000:8000'
+            - '7088:7088'
+            - '7089:7089'
+            - '10000-10200:10000-10200/udp'
+        volumes:
+            - './conf/janus.jcfg:/usr/local/etc/janus/janus.jcfg'
+            - './conf/janus.transport.http.jcfg:/usr/local/etc/janus/janus.transport.http.jcfg'
+            - './conf/janus.plugin.streaming.jcfg:/usr/local/etc/janus/janus.plugin.streaming.jcfg'
+        restart: always
