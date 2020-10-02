@@ -49,6 +49,10 @@ float calcPID()
   {
     I = minPID;
   }
+  if(ki == 0)
+  {
+    I=0;
+  }
   if (timedif == 0)
     timedif = 1;
   D = ((dif - oldDif) * kd * 1000000) / timedif;
@@ -73,6 +77,7 @@ float modelValue = 0;
 float speedValue = 0;
 float force = 0;
 float counterForce = 100;
+float friction = 0.01;
 float forceReduction = 1;
 float slowdown = 1;
 
@@ -82,9 +87,13 @@ float SimulatedModel(float controlValue)
   unsigned long timedif = (micros() - modelTime);
   modelTime = micros();
   modelValue += (speedValue * timedif) * slowdown / 1000000;
-  speedValue += (controlValue - modelValue * forceReduction - counterForce) * timedif * slowdown / 1000000;
+  speedValue += (controlValue - modelValue * forceReduction - counterForce - speedValue * friction) * timedif * slowdown / 1000000;
   if (modelValue < 0)
+  {
     modelValue = 0;
+    if(speedValue<0)
+      speedValue=0;
+  }
   return modelValue;
 }
 void SetModelValue()
