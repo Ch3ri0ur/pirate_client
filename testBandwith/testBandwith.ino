@@ -20,8 +20,8 @@ void setup()
   // key = PirAtE_ADD_NEW_STRING_SENDMSG(Data_Name, Global_VariableAddress)
   // key = PirAtE_ADD_NEW_STRING_SENDMSG(Data_Name, Global_VariableAddress, PirAtE_MSG_SENDMODE)
   // key = PirAtE_ADD_NEW_STRING_SENDMSG(Data_Name, Global_VariableAddress, PirAtE_MSG_SENDMODE, StringBufferLength)
-  PirAtE_ADD_NEW_SENDMSG("duration", &duration, PirAtE_MSG_DATATYPE_ULONG, "time (µs)");
-  PirAtE_ADD_NEW_SENDMSG("distance", &distance, PirAtE_MSG_DATATYPE_ULONG, "d (cm)");
+  PirAtE_ADD_NEW_SENDMSG("duration", &duration, PirAtE_MSG_DATATYPE_ULONG, "time [µs]");
+  PirAtE_ADD_NEW_SENDMSG("distance", &distance, PirAtE_MSG_DATATYPE_ULONG, "d [cm]");
   PirAtE_ADD_NEW_SENDMSG("count", &count, PirAtE_MSG_DATATYPE_ULONG);
   // key = PirAtE_ADD_NEW_STRING_SENDMSG(Data_Name, Global_VariableAddress)
   // key = PirAtE_ADD_NEW_STRING_SENDMSG(Data_Name, Global_VariableAddress, PirAtE_MSG_SENDMODE)

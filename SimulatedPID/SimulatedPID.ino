@@ -111,8 +111,8 @@ void setup()
   // key = PirAtE_ADD_NEW_STRING_SENDMSG(Data_Name, Global_VariableAddress)
   // key = PirAtE_ADD_NEW_STRING_SENDMSG(Data_Name, Global_VariableAddress, PirAtE_MSG_SENDMODE)
   // key = PirAtE_ADD_NEW_STRING_SENDMSG(Data_Name, Global_VariableAddress, PirAtE_MSG_SENDMODE, StringBufferLength)
-  PirAtE_ADD_NEW_SENDMSG("Actual Value", &actualValue, PirAtE_MSG_DATATYPE_FLOAT, "Height in (cm)");
-  PirAtE_ADD_NEW_SENDMSG("Target Value", &setpoint, PirAtE_MSG_DATATYPE_FLOAT, "Height in (cm)");
+  PirAtE_ADD_NEW_SENDMSG("Actual Value", &actualValue, PirAtE_MSG_DATATYPE_FLOAT, "Height in [cm]");
+  PirAtE_ADD_NEW_SENDMSG("Target Value", &setpoint, PirAtE_MSG_DATATYPE_FLOAT, "Height in [cm]");
   PirAtE_ADD_NEW_SENDMSG("PID", &PID, PirAtE_MSG_DATATYPE_FLOAT, "PID Values");
   PirAtE_ADD_NEW_SENDMSG("P", &P, PirAtE_MSG_DATATYPE_FLOAT, "PID Values");
   PirAtE_ADD_NEW_SENDMSG("I", &I, PirAtE_MSG_DATATYPE_FLOAT, "PID Values");
