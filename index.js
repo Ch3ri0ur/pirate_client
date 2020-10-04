@@ -85,7 +85,7 @@ function arduinoToNodeConfigHandler(buffer) {
     const configComponents = configString.split('$');
     //console.log(configComponents);
     // index$name$type
-    if (configComponents.length === 3) {
+    if (configComponents.length === 4) {
         const id = buffer[1] - 48;
         clientSendBuffer_config[id] = {
             name: configComponents[1],
@@ -268,7 +268,7 @@ app.use(helmet()); // TODO test if this creates problems
 app.use(express.json());
 
 app.get('/getconfig', (req, res) => {
-    console.log(req);
+    // console.log(req);
     console.log(clientSendBuffer_config);
     console.log(arduinoSendBuffer_config);
     console.log(arduinoDatatypeSizes);
