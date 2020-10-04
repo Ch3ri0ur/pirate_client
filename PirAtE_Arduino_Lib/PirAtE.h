@@ -236,15 +236,15 @@ int PirAtE_SEND_MSG_Index = 0;
   }
   
 #define PirAtE_GET_SENDMSG_MACRO(_1,_2,_3,_4,_5,NAME,...) NAME
-#define PirAtE_ADD_NEW_SENDMSG(...) PirAtE_GET_SENDMSG_MACRO(__VA_ARGS__, , ,PirAtE_ADD_NEW_SENDMSG0, PirAtE_ADD_NEW_SENDMSG1, PirAtE_ADD_NEW_SENDMSG2)(__VA_ARGS__)
+#define PirAtE_ADD_NEW_SENDMSG(...) PirAtE_GET_SENDMSG_MACRO(__VA_ARGS__,PirAtE_ADD_NEW_SENDMSG5, PirAtE_ADD_NEW_SENDMSG4, PirAtE_ADD_NEW_SENDMSG3, , )(__VA_ARGS__)
 
-#define PirAtE_ADD_NEW_SENDMSG0(Data_Name, Global_VariableAddress, PirAtE_MSG_DATATYPE)                                               \
-  PirAtE_ADD_NEW_SENDMSG2(Data_Name, Global_VariableAddress, PirAtE_MSG_DATATYPE, PirAte_DEFAULT_SCALE_NAME, PirAtE_MSG_SENDMODE_AUTO) 
+#define PirAtE_ADD_NEW_SENDMSG3(Data_Name, Global_VariableAddress, PirAtE_MSG_DATATYPE)                                               \
+  PirAtE_ADD_NEW_SENDMSG5(Data_Name, Global_VariableAddress, PirAtE_MSG_DATATYPE, PirAte_DEFAULT_SCALE_NAME, PirAtE_MSG_SENDMODE_AUTO) 
 
-#define PirAtE_ADD_NEW_SENDMSG1(Data_Name, Global_VariableAddress, PirAtE_MSG_DATATYPE, PirAtE_Scale)                     \
-  PirAtE_ADD_NEW_SENDMSG2(Data_Name, Global_VariableAddress, PirAtE_MSG_DATATYPE, PirAtE_Scale, PirAtE_MSG_SENDMODE_AUTO) 
+#define PirAtE_ADD_NEW_SENDMSG4(Data_Name, Global_VariableAddress, PirAtE_MSG_DATATYPE, PirAtE_Scale)                     \
+  PirAtE_ADD_NEW_SENDMSG5(Data_Name, Global_VariableAddress, PirAtE_MSG_DATATYPE, PirAtE_Scale, PirAtE_MSG_SENDMODE_AUTO) 
 
-#define PirAtE_ADD_NEW_SENDMSG2(Data_Name, Global_VariableAddress, PirAtE_MSG_DATATYPE, PirAtE_Scale, PirAtE_MSG_SENDMODE)  \
+#define PirAtE_ADD_NEW_SENDMSG5(Data_Name, Global_VariableAddress, PirAtE_MSG_DATATYPE, PirAtE_Scale, PirAtE_MSG_SENDMODE)  \
 PirAtE_DEFINED_SEND_MSGS;                                                                                                   \
   {                                                                                                                         \
     PirAtE_SET_SENDMSG(PirAtE_DEFINED_SEND_MSGS, Global_VariableAddress, PirAtE_MSG_DATATYPE, PirAtE_MSG_SENDMODE);         \
@@ -331,15 +331,15 @@ void PirAtE_SEND_SENDMSG_INFO(byte PirAtE_MSG_ID, char *Data_Name, byte PirAtE_M
 }
 
 #define PirAtE_GET_STRING_SENDMSG_MACRO(_1,_2,_3,_4,NAME,...) NAME
-#define PirAtE_ADD_NEW_STRING_SENDMSG(...) PirAtE_GET_STRING_SENDMSG_MACRO(__VA_ARGS__, , PirAtE_ADD_NEW_STRING_SENDMSG0, PirAtE_ADD_NEW_STRING_SENDMSG1, PirAtE_ADD_NEW_STRING_SENDMSG2)(__VA_ARGS__)
+#define PirAtE_ADD_NEW_STRING_SENDMSG(...) PirAtE_GET_STRING_SENDMSG_MACRO(__VA_ARGS__,PirAtE_ADD_NEW_STRING_SENDMSG4, PirAtE_ADD_NEW_STRING_SENDMSG3, PirAtE_ADD_NEW_STRING_SENDMSG2, )(__VA_ARGS__)
 
-#define PirAtE_ADD_NEW_STRING_SENDMSG0(Data_Name, Global_VariableAddress)                                                           \
-  PirAtE_ADD_NEW_STRING_SENDMSG2(Data_Name, Global_VariableAddress, PirAtE_MSG_SENDMODE_AUTO, PirAtE_MSG_DATATYPE_STRING_MAXLENGTH) 
+#define PirAtE_ADD_NEW_STRING_SENDMSG2(Data_Name, Global_VariableAddress)                                                           \
+  PirAtE_ADD_NEW_STRING_SENDMSG4(Data_Name, Global_VariableAddress, PirAtE_MSG_SENDMODE_AUTO, PirAtE_MSG_DATATYPE_STRING_MAXLENGTH) 
   
-#define PirAtE_ADD_NEW_STRING_SENDMSG1(Data_Name, Global_VariableAddress, PirAtE_MSG_SENDMODE)                                \
-  PirAtE_ADD_NEW_STRING_SENDMSG2(Data_Name, Global_VariableAddress, PirAtE_MSG_SENDMODE, PirAtE_MSG_DATATYPE_STRING_MAXLENGTH) 
+#define PirAtE_ADD_NEW_STRING_SENDMSG3(Data_Name, Global_VariableAddress, PirAtE_MSG_SENDMODE)                                \
+  PirAtE_ADD_NEW_STRING_SENDMSG4(Data_Name, Global_VariableAddress, PirAtE_MSG_SENDMODE, PirAtE_MSG_DATATYPE_STRING_MAXLENGTH) 
 
-#define PirAtE_ADD_NEW_STRING_SENDMSG2(Data_Name, Global_VariableAddress, PirAtE_MSG_SENDMODE, StringBufferLength)         \
+#define PirAtE_ADD_NEW_STRING_SENDMSG4(Data_Name, Global_VariableAddress, PirAtE_MSG_SENDMODE, StringBufferLength)         \
   PirAtE_DEFINED_SEND_MSGS;                                                                                                \
   {                                                                                                                        \
     PirAtE_SET_SENDMSG(PirAtE_DEFINED_SEND_MSGS, Global_VariableAddress, PirAtE_MSG_DATATYPE_STRING, PirAtE_MSG_SENDMODE); \
