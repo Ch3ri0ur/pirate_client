@@ -90,6 +90,7 @@ function arduinoToNodeConfigHandler(buffer) {
         clientSendBuffer_config[id] = {
             name: configComponents[1],
             type: configComponents[2],
+            scale: configComponents[3],
         };
     }
 }
