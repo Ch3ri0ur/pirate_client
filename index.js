@@ -398,6 +398,8 @@ app.post('/ctrl', (req, res) => {
     // TODO perhaps check if value matches type and range
 });
 
+app.use(express.static('build'));
+
 app.use(cors());
 
 const PORT = 9876;
