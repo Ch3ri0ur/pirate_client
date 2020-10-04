@@ -37,19 +37,23 @@ byte rstringkey = 0;
 void setup()
 {
   PirAtE_START_COM();
-  // key = PirAtE_ADD_NEW_SENDMSG(Data_Name, Global_VariableAddress, PirAtE_MSG_DATATYPE, PirAtE_MSG_SENDMODE)
-  PirAtE_ADD_NEW_SENDMSG("inty", &inty, PirAtE_MSG_DATATYPE_INT, PirAtE_MSG_SENDMODE_AUTO);
-  PirAtE_ADD_NEW_SENDMSG("uinty", &uinty, PirAtE_MSG_DATATYPE_UINT, PirAtE_MSG_SENDMODE_AUTO);
-  PirAtE_ADD_NEW_SENDMSG("longy", &longy, PirAtE_MSG_DATATYPE_LONG, PirAtE_MSG_SENDMODE_AUTO);
-  PirAtE_ADD_NEW_SENDMSG("ulongy", &ulongy, PirAtE_MSG_DATATYPE_ULONG, PirAtE_MSG_SENDMODE_AUTO);
-  PirAtE_ADD_NEW_SENDMSG("floaty", &floaty, PirAtE_MSG_DATATYPE_FLOAT, PirAtE_MSG_SENDMODE_AUTO);
-  PirAtE_ADD_NEW_SENDMSG("doubley", &doubley, PirAtE_MSG_DATATYPE_DOUBLE, PirAtE_MSG_SENDMODE_AUTO);
-  PirAtE_ADD_NEW_SENDMSG("bytey", &bytey, PirAtE_MSG_DATATYPE_BYTE, PirAtE_MSG_SENDMODE_AUTO);
-  PirAtE_ADD_NEW_SENDMSG("wordy", &wordy, PirAtE_MSG_DATATYPE_WORD, PirAtE_MSG_SENDMODE_AUTO);
-  PirAtE_ADD_NEW_SENDMSG("booly", &booly, PirAtE_MSG_DATATYPE_BOOL, PirAtE_MSG_SENDMODE_AUTO);
-  PirAtE_ADD_NEW_SENDMSG("chary", &chary, PirAtE_MSG_DATATYPE_CHAR, PirAtE_MSG_SENDMODE_AUTO);
-  // key = PirAtE_ADD_NEW_STRING_SENDMSG(Data_Name, Global_VariableAddress, StringBufferLength, PirAtE_MSG_SENDMODE)
-  PirAtE_ADD_NEW_STRING_SENDMSG("stringy", &stringy, 32, PirAtE_MSG_SENDMODE_AUTO);
+  // key = PirAtE_ADD_NEW_SENDMSG(Data_Name, Global_VariableAddress, PirAtE_MSG_DATATYPE)
+  // key = PirAtE_ADD_NEW_SENDMSG(Data_Name, Global_VariableAddress, PirAtE_MSG_DATATYPE, PirAtE_Scale)
+  // key = PirAtE_ADD_NEW_SENDMSG(Data_Name, Global_VariableAddress, PirAtE_MSG_DATATYPE, PirAtE_Scale, PirAtE_MSG_SENDMODE)
+  PirAtE_ADD_NEW_SENDMSG("inty", &inty, PirAtE_MSG_DATATYPE_INT);
+  PirAtE_ADD_NEW_SENDMSG("uinty", &uinty, PirAtE_MSG_DATATYPE_UINT);
+  PirAtE_ADD_NEW_SENDMSG("longy", &longy, PirAtE_MSG_DATATYPE_LONG);
+  PirAtE_ADD_NEW_SENDMSG("ulongy", &ulongy, PirAtE_MSG_DATATYPE_ULONG);
+  PirAtE_ADD_NEW_SENDMSG("floaty", &floaty, PirAtE_MSG_DATATYPE_FLOAT);
+  PirAtE_ADD_NEW_SENDMSG("doubley", &doubley, PirAtE_MSG_DATATYPE_DOUBLE);
+  PirAtE_ADD_NEW_SENDMSG("bytey", &bytey, PirAtE_MSG_DATATYPE_BYTE);
+  PirAtE_ADD_NEW_SENDMSG("wordy", &wordy, PirAtE_MSG_DATATYPE_WORD);
+  PirAtE_ADD_NEW_SENDMSG("booly", &booly, PirAtE_MSG_DATATYPE_BOOL);
+  PirAtE_ADD_NEW_SENDMSG("chary", &chary, PirAtE_MSG_DATATYPE_CHAR);
+  // key = PirAtE_ADD_NEW_STRING_SENDMSG(Data_Name, Global_VariableAddress)
+  // key = PirAtE_ADD_NEW_STRING_SENDMSG(Data_Name, Global_VariableAddress, PirAtE_MSG_SENDMODE)
+  // key = PirAtE_ADD_NEW_STRING_SENDMSG(Data_Name, Global_VariableAddress, PirAtE_MSG_SENDMODE, StringBufferLength)
+  PirAtE_ADD_NEW_STRING_SENDMSG("stringy", &stringy, PirAtE_MSG_SENDMODE_AUTO, 32);
 
   // key = PirAtE_ADD_NEW_RECEIVEMSG(Data_Name, Global_VariableAddress, PirAtE_MSG_DATATYPE, Default_Value, Max_Value, Min_Value)
   PirAtE_ADD_NEW_RECEIVEMSG("rinty", &rinty, PirAtE_MSG_DATATYPE_INT, 0, 32767, -32768);

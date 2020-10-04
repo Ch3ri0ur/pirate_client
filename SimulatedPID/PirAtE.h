@@ -158,6 +158,8 @@ byte PirAtE_MSG_DELIMITER[PirAtE_MSG_DELIMITER_LENGTH] = {0xff, 'P', 'i', 'r', '
 #define PirAtE_MSG_DATATYPE_STRING_MAXLENGTH (PirAtE_MSG_DATA_MAXLENGTH - PirAtE_CHARARRAY_END_LENGTH)
 #define PirAtE_RECEIVE_DATATYPE_STRING_MAXLENGTH (PirAtE_Serial_Buffer_Size - PirAtE_CHARARRAY_END_LENGTH - PirAtE_MSG_DATAID_LENGTH)
 
+#define PirAte_DEFAULT_SCALE_NAME "y"
+
 //Offset of actual Data to DataMsg Start
 #define PirAtE_MSG_DATA_OVERHEAD (PirAtE_MSG_DATAID_LENGTH + PirAtE_MSG_DATATYPE_LENGTH)
 //MaxData Length
@@ -232,14 +234,22 @@ int PirAtE_SEND_MSG_Index = 0;
   {                                                                                           \
     PirAtE_DATA_SEND_NEWDATA_AVAILABLE_MASK[PirAtE_MSG_KEY / 8] |= 1 << (PirAtE_MSG_KEY % 8); \
   }
+  
+#define PirAtE_GET_SENDMSG_MACRO(_1,_2,_3,_4,_5,NAME,...) NAME
+#define PirAtE_ADD_NEW_SENDMSG(...) PirAtE_GET_SENDMSG_MACRO(__VA_ARGS__, , ,PirAtE_ADD_NEW_SENDMSG0, PirAtE_ADD_NEW_SENDMSG1, PirAtE_ADD_NEW_SENDMSG2)(__VA_ARGS__)
 
-#define PirAtE_ADD_NEW_SENDMSG(Data_Name, Global_VariableAddress, PirAtE_MSG_DATATYPE, PirAtE_MSG_SENDMODE)         \
-  PirAtE_DEFINED_SEND_MSGS;                                                                                         \
-  {                                                                                                                 \
-    PirAtE_SET_SENDMSG(PirAtE_DEFINED_SEND_MSGS, Global_VariableAddress, PirAtE_MSG_DATATYPE, PirAtE_MSG_SENDMODE); \
-    PirAtE_SEND_SENDMSG_INFO(PirAtE_DEFINED_SEND_MSGS, Data_Name, PirAtE_MSG_DATATYPE);                             \
-    PirAtE_ComType_Serialfunc.write(PirAtE_MSG_DELIMITER, PirAtE_MSG_DELIMITER_LENGTH);                             \
-    PirAtE_DEFINED_SEND_MSGS++;                                                                                     \
+#define PirAtE_ADD_NEW_SENDMSG0(Data_Name, Global_VariableAddress, PirAtE_MSG_DATATYPE)                                               \
+  PirAtE_ADD_NEW_SENDMSG2(Data_Name, Global_VariableAddress, PirAtE_MSG_DATATYPE, PirAte_DEFAULT_SCALE_NAME, PirAtE_MSG_SENDMODE_AUTO) 
+
+#define PirAtE_ADD_NEW_SENDMSG1(Data_Name, Global_VariableAddress, PirAtE_MSG_DATATYPE, PirAtE_Scale)                     \
+  PirAtE_ADD_NEW_SENDMSG2(Data_Name, Global_VariableAddress, PirAtE_MSG_DATATYPE, PirAtE_Scale, PirAtE_MSG_SENDMODE_AUTO) 
+
+#define PirAtE_ADD_NEW_SENDMSG2(Data_Name, Global_VariableAddress, PirAtE_MSG_DATATYPE, PirAtE_Scale, PirAtE_MSG_SENDMODE)  \
+PirAtE_DEFINED_SEND_MSGS;                                                                                                   \
+  {                                                                                                                         \
+    PirAtE_SET_SENDMSG(PirAtE_DEFINED_SEND_MSGS, Global_VariableAddress, PirAtE_MSG_DATATYPE, PirAtE_MSG_SENDMODE);         \
+    PirAtE_SEND_SENDMSG_INFO(PirAtE_DEFINED_SEND_MSGS, Data_Name, PirAtE_MSG_DATATYPE, PirAtE_Scale);                       \
+    PirAtE_DEFINED_SEND_MSGS++;                                                                                             \
   }
 
 void PirAtE_CONFIGURE_SEND(byte PirAtE_MSG_ID, byte *Global_VariableAddress, byte PirAtE_MSG_SENDMODE)
@@ -307,7 +317,7 @@ void PirAtE_CONFIGURE_SEND(byte PirAtE_MSG_ID, byte *Global_VariableAddress, byt
     }                                                                                                       \
   }
 
-void PirAtE_SEND_SENDMSG_INFO(byte PirAtE_MSG_ID, char *Data_Name, byte PirAtE_MSG_DATATYPE)
+void PirAtE_SEND_SENDMSG_INFO(byte PirAtE_MSG_ID, char *Data_Name, byte PirAtE_MSG_DATATYPE, char *PirAtE_Scale)
 {
   PirAtE_ComType_Serialfunc.write(PirAtE_TRANSMIT_SENDMSG_INFO);
   PirAtE_ComType_Serialfunc.write(PirAtE_MSG_ID + PirAtE_MSG_DATAID_OFFSET);
@@ -315,9 +325,21 @@ void PirAtE_SEND_SENDMSG_INFO(byte PirAtE_MSG_ID, char *Data_Name, byte PirAtE_M
   PirAtE_ComType_Serialfunc.print(Data_Name);
   PirAtE_ComType_Serialfunc.write(PirAtE_TRANSMIT_SEPERATOR);
   PirAtE_ComType_Serialfunc.write(PirAtE_DATA_SEND_DATATYPE_MASK[PirAtE_MSG_ID]);
+  PirAtE_ComType_Serialfunc.write(PirAtE_TRANSMIT_SEPERATOR);
+  PirAtE_ComType_Serialfunc.print(PirAtE_Scale);
+  PirAtE_ComType_Serialfunc.write(PirAtE_MSG_DELIMITER, PirAtE_MSG_DELIMITER_LENGTH);
 }
 
-#define PirAtE_ADD_NEW_STRING_SENDMSG(Data_Name, Global_VariableAddress, StringBufferLength, PirAtE_MSG_SENDMODE)          \
+#define PirAtE_GET_STRING_SENDMSG_MACRO(_1,_2,_3,_4,NAME,...) NAME
+#define PirAtE_ADD_NEW_STRING_SENDMSG(...) PirAtE_GET_STRING_SENDMSG_MACRO(__VA_ARGS__, , PirAtE_ADD_NEW_STRING_SENDMSG0, PirAtE_ADD_NEW_STRING_SENDMSG1, PirAtE_ADD_NEW_STRING_SENDMSG2)(__VA_ARGS__)
+
+#define PirAtE_ADD_NEW_STRING_SENDMSG0(Data_Name, Global_VariableAddress)                                                           \
+  PirAtE_ADD_NEW_STRING_SENDMSG2(Data_Name, Global_VariableAddress, PirAtE_MSG_SENDMODE_AUTO, PirAtE_MSG_DATATYPE_STRING_MAXLENGTH) 
+  
+#define PirAtE_ADD_NEW_STRING_SENDMSG1(Data_Name, Global_VariableAddress, PirAtE_MSG_SENDMODE)                                \
+  PirAtE_ADD_NEW_STRING_SENDMSG2(Data_Name, Global_VariableAddress, PirAtE_MSG_SENDMODE, PirAtE_MSG_DATATYPE_STRING_MAXLENGTH) 
+
+#define PirAtE_ADD_NEW_STRING_SENDMSG2(Data_Name, Global_VariableAddress, PirAtE_MSG_SENDMODE, StringBufferLength)         \
   PirAtE_DEFINED_SEND_MSGS;                                                                                                \
   {                                                                                                                        \
     PirAtE_SET_SENDMSG(PirAtE_DEFINED_SEND_MSGS, Global_VariableAddress, PirAtE_MSG_DATATYPE_STRING, PirAtE_MSG_SENDMODE); \
@@ -330,8 +352,7 @@ void PirAtE_SEND_SENDMSG_INFO(byte PirAtE_MSG_ID, char *Data_Name, byte PirAtE_M
     {                                                                                                                      \
       PirAtE_DATA_SEND_DATASIZE[PirAtE_DEFINED_SEND_MSGS] = StringBufferLength - PirAtE_CHARARRAY_END_LENGTH;              \
     }                                                                                                                      \
-    PirAtE_SEND_SENDMSG_INFO(PirAtE_DEFINED_SEND_MSGS, Data_Name, PirAtE_MSG_DATATYPE_STRING);                             \
-    PirAtE_ComType_Serialfunc.write(PirAtE_MSG_DELIMITER, PirAtE_MSG_DELIMITER_LENGTH);                                    \
+    PirAtE_SEND_SENDMSG_INFO(PirAtE_DEFINED_SEND_MSGS, Data_Name, PirAtE_MSG_DATATYPE_STRING, PirAte_DEFAULT_SCALE_NAME);  \
     PirAtE_DEFINED_SEND_MSGS++;                                                                                            \
   }
 
@@ -508,7 +529,8 @@ void PirAtE_SEND_RECEIVEMSG_INFO(byte PirAtE_MSG_ID, char *Data_Name, byte PirAt
 #define PirAtE_ADD_NEW_STRING_RECEIVEMSG(Data_Name, Global_VariableAddress, StringBufferLength)                                                                                                             \
   PirAtE_DEFINED_RECEIVE_MSGS;                                                                                                                                                                              \
   {                                                                                                                                                                                                         \
-    PirAtE_SET_RECEIVEMSG(PirAtE_DEFINED_RECEIVE_MSGS, Global_VariableAddress, PirAtE_MSG_DATATYPE_STRING) if (StringBufferLength - PirAtE_CHARARRAY_END_LENGTH > PirAtE_RECEIVE_DATATYPE_STRING_MAXLENGTH) \
+    PirAtE_SET_RECEIVEMSG(PirAtE_DEFINED_RECEIVE_MSGS, Global_VariableAddress, PirAtE_MSG_DATATYPE_STRING)                                                                                                  \
+    if (StringBufferLength - PirAtE_CHARARRAY_END_LENGTH > PirAtE_RECEIVE_DATATYPE_STRING_MAXLENGTH)                                                                                                        \
     {                                                                                                                                                                                                       \
       PirAtE_SEND_DEBUG_MAKRO("ERROR: ReceiveString exceeds PirAtE_RECEIVE_DATATYPE_STRING_MAXLENGTH");                                                                                                     \
       PirAtE_DATA_RECEIVE_DATASIZE[PirAtE_DEFINED_RECEIVE_MSGS] = PirAtE_RECEIVE_DATATYPE_STRING_MAXLENGTH;                                                                                                 \

@@ -11,10 +11,14 @@ void setup()
 {
   // put your setup code here, to run once:
   PirAtE_START_COM();
-  // key = PirAtE_ADD_NEW_SENDMSG(Data_Name, Global_VariableAddress, PirAtE_MSG_DATATYPE, PirAtE_MSG_SENDMODE)
-  // key = PirAtE_ADD_NEW_STRING_SENDMSG(Data_Name, Global_VariableAddress, StringBufferLength, PirAtE_MSG_SENDMODE)
-  PirAtE_ADD_NEW_SENDMSG("data1", &data, PirAtE_MSG_DATATYPE_INT, PirAtE_MSG_SENDMODE_AUTO);
-  data2Key = PirAtE_ADD_NEW_SENDMSG("data2", &data2, PirAtE_MSG_DATATYPE_INT, PirAtE_MSG_SENDMODE_MANUEL);
+  // key = PirAtE_ADD_NEW_SENDMSG(Data_Name, Global_VariableAddress, PirAtE_MSG_DATATYPE)
+  // key = PirAtE_ADD_NEW_SENDMSG(Data_Name, Global_VariableAddress, PirAtE_MSG_DATATYPE, PirAtE_Scale)
+  // key = PirAtE_ADD_NEW_SENDMSG(Data_Name, Global_VariableAddress, PirAtE_MSG_DATATYPE, PirAtE_Scale, PirAtE_MSG_SENDMODE)
+  // key = PirAtE_ADD_NEW_STRING_SENDMSG(Data_Name, Global_VariableAddress)
+  // key = PirAtE_ADD_NEW_STRING_SENDMSG(Data_Name, Global_VariableAddress, PirAtE_MSG_SENDMODE)
+  // key = PirAtE_ADD_NEW_STRING_SENDMSG(Data_Name, Global_VariableAddress, PirAtE_MSG_SENDMODE, StringBufferLength)
+  PirAtE_ADD_NEW_SENDMSG("data1", &data, PirAtE_MSG_DATATYPE_INT);
+  data2Key = PirAtE_ADD_NEW_SENDMSG("data2", &data2, PirAtE_MSG_DATATYPE_INT, PirAte_DEFAULT_SCALE_NAME, PirAtE_MSG_SENDMODE_MANUEL);
   // key = PirAtE_ADD_NEW_RECEIVEMSG(Data_Name, Global_VariableAddress, PirAtE_MSG_DATATYPE, Default_Value, Max_Value, Min_Value)
   // key = PirAtE_ADD_NEW_STRING_RECEIVEMSG(Data_Name, Global_VariableAddress, StringBufferLength)
   data3Key = PirAtE_ADD_NEW_RECEIVEMSG("data3", &data3, PirAtE_MSG_DATATYPE_INT, 0, 200, 0);

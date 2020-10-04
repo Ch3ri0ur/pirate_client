@@ -14,11 +14,19 @@ char control = 'u';
 void setup()
 {
   PirAtE_START_COM();
-  // key = PirAtE_ADD_NEW_SENDMSG(Data_Name, Global_VariableAdress, PirAtE_MSG_DATATYPE, PirAtE_MSG_SENDMODE)
-  PirAtE_ADD_NEW_SENDMSG("duration", &duration, PirAtE_MSG_DATATYPE_ULONG, PirAtE_MSG_SENDMODE_AUTO);
-  PirAtE_ADD_NEW_SENDMSG("distance", &distance, PirAtE_MSG_DATATYPE_ULONG, PirAtE_MSG_SENDMODE_AUTO);
-  PirAtE_ADD_NEW_SENDMSG("count", &count, PirAtE_MSG_DATATYPE_ULONG, PirAtE_MSG_SENDMODE_AUTO);
-  PirAtE_ADD_NEW_STRING_SENDMSG("stringy", &stringy, 53, PirAtE_MSG_SENDMODE_AUTO);
+  // key = PirAtE_ADD_NEW_SENDMSG(Data_Name, Global_VariableAddress, PirAtE_MSG_DATATYPE)
+  // key = PirAtE_ADD_NEW_SENDMSG(Data_Name, Global_VariableAddress, PirAtE_MSG_DATATYPE, PirAtE_Scale)
+  // key = PirAtE_ADD_NEW_SENDMSG(Data_Name, Global_VariableAddress, PirAtE_MSG_DATATYPE, PirAtE_Scale, PirAtE_MSG_SENDMODE)
+  // key = PirAtE_ADD_NEW_STRING_SENDMSG(Data_Name, Global_VariableAddress)
+  // key = PirAtE_ADD_NEW_STRING_SENDMSG(Data_Name, Global_VariableAddress, PirAtE_MSG_SENDMODE)
+  // key = PirAtE_ADD_NEW_STRING_SENDMSG(Data_Name, Global_VariableAddress, PirAtE_MSG_SENDMODE, StringBufferLength)
+  PirAtE_ADD_NEW_SENDMSG("duration", &duration, PirAtE_MSG_DATATYPE_ULONG, "time (µs)");
+  PirAtE_ADD_NEW_SENDMSG("distance", &distance, PirAtE_MSG_DATATYPE_ULONG, "d (cm)");
+  PirAtE_ADD_NEW_SENDMSG("count", &count, PirAtE_MSG_DATATYPE_ULONG);
+  // key = PirAtE_ADD_NEW_STRING_SENDMSG(Data_Name, Global_VariableAddress)
+  // key = PirAtE_ADD_NEW_STRING_SENDMSG(Data_Name, Global_VariableAddress, PirAtE_MSG_SENDMODE)
+  // key = PirAtE_ADD_NEW_STRING_SENDMSG(Data_Name, Global_VariableAddress, PirAtE_MSG_SENDMODE, StringBufferLength)
+  PirAtE_ADD_NEW_STRING_SENDMSG("stringy", &stringy, PirAtE_MSG_SENDMODE_AUTO, 53);
   // key = PirAtE_ADD_NEW_RECEIVEMSG(Data_Name, Global_VariableAdress, PirAtE_MSG_DATATYPE, Default_Value, Max_Value, Min_Value)
   PirAtE_ADD_NEW_RECEIVEMSG("value", &value, PirAtE_MSG_DATATYPE_INT, 0, 32767, -32768);
   PirAtE_ADD_NEW_RECEIVEMSG("control", &control, PirAtE_MSG_DATATYPE_CHAR, 'u', 255, 0);
