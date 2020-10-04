@@ -315,30 +315,81 @@ var intervalID = setInterval(() => {
     }
 }, 16);
 
+let configClients = {};
+let configCounter = 0;
+
+app.get('/configUpdates', (req, res) => {
+    res.set({
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        Connection: 'keep-alive',
+
+        // enabling CORS
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept',
+    });
+    console.log('event source started id:' + configCounter);
+
+    let keepAliveID = setInterval(() => {
+        res.write(':keepalive \n\n');
+    }, 15000);
+
+    let mycount = configCounter;
+    res.socket.on('end', (e) => {
+        console.log('event source closed id: ' + mycount);
+        clearInterval(keepAliveID);
+        delete configClients[mycount];
+        res.end();
+    });
+    configClients[configCounter] = res;
+    configCounter++;
+});
+
+const updatedVariables = (uuid, idx, value) => {
+    arduinoSendBuffer_config[idx].default = value;
+    const body = {
+        uuid: uuid,
+        data: {
+            id: idx,
+            value: value,
+        },
+    };
+    for (let [key, res] of Object.entries(configClients)) {
+        console.log('Sending to Client: ' + key);
+        res.write('event: message\n');
+        res.write('data: ' + JSON.stringify(body) + '\n\n');
+    }
+};
+
 app.post('/ctrl', (req, res) => {
-    console.log(req);
-    data = req.body; // ! is this necessary? above i use express.json()
-    console.log(data);
-    let success = true;
-    for (let [idx, value] of Object.entries(data)) {
-        console.log(`${idx}: ${value}`);
-        if (idx in arduinoSendBuffer_config) {
-            let type = arduinoSendBuffer_config[idx].type;
-            if (type === 'S' || type === 'C') {
-                if (typeof value === 'string') {
-                    arduinoSendBuffer.set(idx, value);
-                } else {
-                    success = false;
-                }
-            } else if (type) {
-                if (typeof value === 'number') {
-                    arduinoSendBuffer.set(idx, value);
-                } else {
-                    success = false;
+    // console.log(req);
+    let success = false;
+    const body = req.body; // ! is this necessary? above i use express.json()
+    // console.log(body, body.uuid, body.data);
+    if (body && body.uuid && body.data) {
+        data = body.data;
+        uuid = body.uuid;
+        console.log(`Recieved ctrl request from ID: ${uuid}. Data:`, data);
+        for (let [idx, value] of Object.entries(data)) {
+            if (idx in arduinoSendBuffer_config) {
+                let type = arduinoSendBuffer_config[idx].type;
+                if (type === 'S' || type === 'C') {
+                    if (typeof value === 'string') {
+                        arduinoSendBuffer.set(idx, value);
+                        updatedVariables(uuid, idx, value);
+                        success = true;
+                    }
+                } else if (type) {
+                    if (typeof value === 'number') {
+                        arduinoSendBuffer.set(idx, value);
+                        updatedVariables(uuid, idx, value);
+                        success = true;
+                    }
                 }
             }
         }
     }
+
     if (success) {
         res.sendStatus(200);
     } else {
