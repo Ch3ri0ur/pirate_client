@@ -30,6 +30,11 @@
  * 
   */
 
+//todo pirate off
+#define PirAtE_OFF
+#define PirAtE_DEBUG_DISABLED
+
+
 #ifndef PirAtE_H
 #define PirAtE_H
 #include "Arduino.h"
@@ -39,13 +44,17 @@
 #define PirAtE_Serial_Buffer_Size 64
 #endif
 
+//Not implemented yet
 #define PirAtE_COMTYPE_USB 0
 #define PirAtE_COMTYPE_UART 1
 #define PirAtE_COMTYPE_SPI 2
 
+//Not implemented yet
 #ifndef PirAtE_ComType
 #define PirAte_ComType PirAtE_COMTYPE_USB
 #endif
+
+
 
 #ifndef PirAtE_SendMSGInterVal_micros
 #define PirAtE_SendMSGInterVal_micros 10ul
@@ -180,6 +189,7 @@ byte PirAtE_DATA_SEND_NEWDATA_AVAILABLE_MASK[PirAtE_SendMsg_Amount / 8 + (PirAtE
 int PirAtE_DEFINED_SEND_MSGS = 0;
 int PirAtE_SEND_MSG_Index = 0;
 
+//todo Serial buffer size übertragen
 #define PirAtE_START_COM()                                                              \
   {                                                                                     \
     PirAtE_ComType_Serialfunc.begin(PirAtE_Serial_Baudrate);                            \
@@ -223,6 +233,7 @@ int PirAtE_SEND_MSG_Index = 0;
     delay(1000);                                                                        \
   }
 
+//todo debug off define
 #define PirAtE_SEND_DEBUG_MAKRO(...)                                                    \
   {                                                                                     \
     PirAtE_ComType_Serialfunc.write(PirAtE_DEBUG_MSG);                                  \
@@ -358,6 +369,8 @@ void PirAtE_SEND_SENDMSG_INFO(byte PirAtE_MSG_ID, char *Data_Name, byte PirAtE_M
 
 unsigned long PirAtE_Time_of_next_Msg_Cycle = 0;
 
+//todo multi msg in 1 send with on delimiter
+
 #define PirAtE_SENDMSGS_MAKRO()                                                                                                                                                                                                                                                                                                                                                               \
   {                                                                                                                                                                                                                                                                                                                                                                                           \
     unsigned long PirAtE_endTime = micros() + PirAtE_AllowedSendBlockTime_micros;                                                                                                                                                                                                                                                                                                             \
@@ -365,7 +378,7 @@ unsigned long PirAtE_Time_of_next_Msg_Cycle = 0;
     int tmpStringSize = 0;                                                                                                                                                                                                                                                                                                                                                                    \
     do                                                                                                                                                                                                                                                                                                                                                                                        \
     {                                                                                                                                                                                                                                                                                                                                                                                         \
-      if (PirAtE_SEND_MSG_Index != 0 || micros() > PirAtE_Time_of_next_Msg_Cycle)                                                                                                                                                                                                                                                                                                                   \
+      if (PirAtE_SEND_MSG_Index != 0 || micros() > PirAtE_Time_of_next_Msg_Cycle)                                                                                                                                                                                                                                                                                                             \
       {                                                                                                                                                                                                                                                                                                                                                                                       \
         if ((PirAtE_DATA_SEND_SENDMODE_MASK[PirAtE_SEND_MSG_Index / 8] & PirAtE_MSG_SENDMODE_AUTO << ((PirAtE_SEND_MSG_Index % 8)) || PirAtE_DATA_SEND_NEWDATA_AVAILABLE_MASK[PirAtE_SEND_MSG_Index / 8] & 1 << (PirAtE_SEND_MSG_Index % 8)))                                                                                                                                                 \
         {                                                                                                                                                                                                                                                                                                                                                                                     \
@@ -561,25 +574,26 @@ void PirAtE_SEND_RECEIVEMSG_INFO(byte PirAtE_MSG_ID, char *Data_Name, byte PirAt
 unsigned long PirAtE_Time_of_next_Request = 0;
 unsigned long PirAtE_ReceiveTimeout = 0;
 byte PirAtE_IncompleteData = 0;
+byte PirAte_NoData = 0;
 
 #define PirAte_RECEIVEMSGS_MAKRO()                                                                                                                                                                    \
   {                                                                                                                                                                                                   \
-    int receiveCount = 0;                                                                                                                                                                             \
-    byte noData = 0;                                                                                                                                                                                  \
     unsigned long PirAtE_endTime = micros() + PirAtE_AllowedReceiveBlockTime_micros;                                                                                                                  \
     int receivedByte = -1;                                                                                                                                                                            \
     int receivedBytesCount = 0;                                                                                                                                                                       \
     int msgID = -1;                                                                                                                                                                                   \
-    while (PirAtE_ComType_Serialfunc.available() > 0 && micros() < PirAtE_endTime && micros() > PirAtE_endTime - PirAtE_AllowedReceiveBlockTime_micros && receiveCount < PirAtE_DEFINED_RECEIVE_MSGS) \
+    while (PirAtE_ComType_Serialfunc.available() > 0 && micros() < PirAtE_endTime && micros() > PirAtE_endTime - PirAtE_AllowedReceiveBlockTime_micros)                                               \
     {                                                                                                                                                                                                 \
       msgID = PirAtE_ComType_Serialfunc.peek();                                                                                                                                                       \
       if (msgID == PirAtE_NO_DATA)                                                                                                                                                                    \
       {                                                                                                                                                                                               \
         PirAtE_ComType_Serialfunc.read();                                                                                                                                                             \
-        noData = 1;                                                                                                                                                                                   \
+        PirAte_NoData = 1;                                                                                                                                                                            \
+        PirAtE_Time_of_next_Request = micros() + PirAtE_RequestInterVal_micros;                                                                                                                       \
       }                                                                                                                                                                                               \
       else                                                                                                                                                                                            \
       {                                                                                                                                                                                               \
+        PirAte_NoData = 0;                                                                                                                                                                            \
         msgID -= PirAtE_MSG_DATAID_OFFSET;                                                                                                                                                            \
         receivedBytesCount = 0;                                                                                                                                                                       \
         if (msgID >= 0 && msgID < PirAtE_DEFINED_RECEIVE_MSGS)                                                                                                                                        \
@@ -609,6 +623,7 @@ byte PirAtE_IncompleteData = 0;
                 receivedBytesCount++;                                                                                                                                                                 \
                 if ((byte)receivedByte == PirAtE_CHARARRAY_END)                                                                                                                                       \
                 {                                                                                                                                                                                     \
+                  PirAtE_ReceiveTimeout = micros() + PirAtE_RECEIVE_PAYLOADBYTE_TIMEOUT_MICROS;                                                                                                       \
                   break;                                                                                                                                                                              \
                 }                                                                                                                                                                                     \
                 else if (receivedBytesCount == PirAtE_DATA_RECEIVE_DATASIZE[msgID] + PirAtE_CHARARRAY_END_LENGTH)                                                                                     \
@@ -628,20 +643,21 @@ byte PirAtE_IncompleteData = 0;
               PirAtE_ComType_Serialfunc.read();                                                                                                                                                       \
               receivedBytesCount = PirAtE_ComType_Serialfunc.readBytes(PirAtE_DATA_RECEIVE_ADDRESSES[msgID], PirAtE_DATA_RECEIVE_DATASIZE[msgID]);                                                    \
               PirAtE_IncompleteData = 0;                                                                                                                                                              \
+              PirAtE_ReceiveTimeout = micros() + PirAtE_RECEIVE_PAYLOADBYTE_TIMEOUT_MICROS;                                                                                                           \
             }                                                                                                                                                                                         \
             else                                                                                                                                                                                      \
             {                                                                                                                                                                                         \
               if(PirAtE_IncompleteData)                                                                                                                                                               \
               {                                                                                                                                                                                       \
-                if(micros() < PirAtE_ReceiveTimeout - PirAtE_RECEIVE_PAYLOADBYTE_TIMEOUT_MICROS * PirAtE_DATA_RECEIVE_DATASIZE[msgID])                                                                \
-                {                                                                                                                                                                                     \
-                  PirAtE_ReceiveTimeout = micros() + (PirAtE_RECEIVE_PAYLOADBYTE_TIMEOUT_MICROS * PirAtE_DATA_RECEIVE_DATASIZE[msgID]);                                                               \
-                }                                                                                                                                                                                     \
                 if(micros() > PirAtE_ReceiveTimeout)                                                                                                                                                  \
                 {                                                                                                                                                                                     \
                   while (PirAtE_ComType_Serialfunc.read() != -1)                                                                                                                                      \
                   ;                                                                                                                                                                                   \
                   PirAtE_IncompleteData = 0;                                                                                                                                                          \
+                }                                                                                                                                                                                     \
+                else if(micros() < PirAtE_ReceiveTimeout - PirAtE_RECEIVE_PAYLOADBYTE_TIMEOUT_MICROS * PirAtE_DATA_RECEIVE_DATASIZE[msgID])                                                           \
+                {                                                                                                                                                                                     \
+                  PirAtE_ReceiveTimeout = micros() + (PirAtE_RECEIVE_PAYLOADBYTE_TIMEOUT_MICROS * PirAtE_DATA_RECEIVE_DATASIZE[msgID]);                                                               \
                 }                                                                                                                                                                                     \
               }                                                                                                                                                                                       \
               else                                                                                                                                                                                    \
@@ -660,26 +676,32 @@ byte PirAtE_IncompleteData = 0;
         if (receivedBytesCount > 0)                                                                                                                                                                   \
         {                                                                                                                                                                                             \
           PirAtE_DATA_RECEIVE_NEWDATA_AVAILABLE_MASK[msgID / 8] |= 1 << (msgID % 8);                                                                                                                  \
-          receiveCount++;                                                                                                                                                                             \
         }                                                                                                                                                                                             \
       }                                                                                                                                                                                               \
     }                                                                                                                                                                                                 \
-    if(micros() > PirAtE_Time_of_next_Request)                                                                                                                                                        \
+    if(!PirAtE_IncompleteData)                                                                                                                                                                        \
     {                                                                                                                                                                                                 \
-      if (noData == 0 && PirAtE_ComType_Serialfunc.availableForWrite() > PirAtE_MSG_DELIMITER_LENGTH + PirAtE_REQUEST_DATA_LENGTH)                                                                    \
+      if (((!PirAte_NoData &&  micros() > PirAtE_ReceiveTimeout) || micros() > PirAtE_Time_of_next_Request)&& PirAtE_ComType_Serialfunc.available() == 0)                                             \
       {                                                                                                                                                                                               \
-        PirAtE_ComType_Serialfunc.write(PirAtE_REQUEST_DATA);                                                                                                                                         \
-        PirAtE_ComType_Serialfunc.write(PirAtE_MSG_DELIMITER, PirAtE_MSG_DELIMITER_LENGTH);                                                                                                           \
-        PirAtE_Time_of_next_Request = micros() + PirAtE_RequestInterVal_micros;                                                                                                                       \
+        if (PirAtE_ComType_Serialfunc.availableForWrite() > PirAtE_MSG_DELIMITER_LENGTH + PirAtE_REQUEST_DATA_LENGTH)                                                                                 \
+        {                                                                                                                                                                                             \
+          PirAtE_ComType_Serialfunc.write(PirAtE_REQUEST_DATA);                                                                                                                                       \
+          PirAtE_ComType_Serialfunc.write(PirAtE_MSG_DELIMITER, PirAtE_MSG_DELIMITER_LENGTH);                                                                                                         \
+          PirAtE_Time_of_next_Request = micros() + PirAtE_RequestInterVal_micros;                                                                                                                     \
+          PirAte_NoData = !PirAte_NoData;                                                                                                                                                             \
+        }                                                                                                                                                                                             \
       }                                                                                                                                                                                               \
-    }                                                                                                                                                                                                 \
-    else                                                                                                                                                                                              \
-    {                                                                                                                                                                                                 \
-      if (micros() < PirAtE_Time_of_next_Request - PirAtE_RequestInterVal_micros)                                                                                                                     \
+      else                                                                                                                                                                                            \
       {                                                                                                                                                                                               \
-        PirAtE_Time_of_next_Request = micros() + PirAtE_RequestInterVal_micros;                                                                                                                       \
+        if (micros() < PirAtE_Time_of_next_Request - PirAtE_RequestInterVal_micros)                                                                                                                   \
+        {                                                                                                                                                                                             \
+          PirAtE_Time_of_next_Request = micros() + PirAtE_RequestInterVal_micros;                                                                                                                     \
+        }                                                                                                                                                                                             \
+        if(micros() < PirAtE_ReceiveTimeout - PirAtE_RECEIVE_PAYLOADBYTE_TIMEOUT_MICROS)                                                                                                              \
+        {                                                                                                                                                                                             \
+          PirAtE_ReceiveTimeout = micros() + (PirAtE_RECEIVE_PAYLOADBYTE_TIMEOUT_MICROS);                                                                                                             \
+        }                                                                                                                                                                                             \
       }                                                                                                                                                                                               \
     }                                                                                                                                                                                                 \
   }
-
 #endif
