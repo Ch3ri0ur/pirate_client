@@ -36,8 +36,8 @@
 
 //todo pirate off
 //#define PirAtE_COM_OFF
-#define PirAtE_DEBUG_DISABLED
-#define PirAtE_IS_NEW_DATA_AVAILABLE_Default_Flag_Value 1
+//#define PirAtE_DEBUG_DISABLED
+//#define PirAtE_IS_NEW_DATA_AVAILABLE_Default_Flag_Value 1
 
 
 #ifndef PirAtE_Serial_Buffer_Size
@@ -182,47 +182,34 @@ byte PirAtE_MSG_DELIMITER[PirAtE_MSG_DELIMITER_LENGTH] = {0xff, 'P', 'i', 'r', '
 #ifdef PirAtE_COM_OFF
   #define PirAtE_START_COM() PirAtE_ComType_Serialfunc.begin(PirAtE_Serial_Baudrate);
 #else
-  #define PirAtE_START_COM()                                                              \
-    {                                                                                     \
-      PirAtE_ComType_Serialfunc.begin(PirAtE_Serial_Baudrate);                            \
-      delay(100);                                                                         \
-      PirAtE_ComType_Serialfunc.write(PirAtE_SERIAL_START, PirAtE_SERIAL_START_LENGTH);   \
-      delay(100);                                                                         \
-      PirAtE_ComType_Serialfunc.write(PirAtE_DATATYPE_INFO);                              \
-      PirAtE_ComType_Serialfunc.write(PirAtE_MSG_DATATYPE_INT);                           \
-      PirAtE_ComType_Serialfunc.write(PirAtE_MSG_DATATYPE_INT_LENGTH);                    \
-      PirAtE_ComType_Serialfunc.write(PirAtE_TRANSMIT_SEPERATOR);                         \
-      PirAtE_ComType_Serialfunc.write(PirAtE_MSG_DATATYPE_UINT);                          \
-      PirAtE_ComType_Serialfunc.write(PirAtE_MSG_DATATYPE_UINT_LENGTH);                   \
-      PirAtE_ComType_Serialfunc.write(PirAtE_TRANSMIT_SEPERATOR);                         \
-      PirAtE_ComType_Serialfunc.write(PirAtE_MSG_DATATYPE_LONG);                          \
-      PirAtE_ComType_Serialfunc.write(PirAtE_MSG_DATATYPE_LONG_LENGTH);                   \
-      PirAtE_ComType_Serialfunc.write(PirAtE_TRANSMIT_SEPERATOR);                         \
-      PirAtE_ComType_Serialfunc.write(PirAtE_MSG_DATATYPE_ULONG);                         \
-      PirAtE_ComType_Serialfunc.write(PirAtE_MSG_DATATYPE_ULONG_LENGTH);                  \
-      PirAtE_ComType_Serialfunc.write(PirAtE_TRANSMIT_SEPERATOR);                         \
-      PirAtE_ComType_Serialfunc.write(PirAtE_MSG_DATATYPE_FLOAT);                         \
-      PirAtE_ComType_Serialfunc.write(PirAtE_MSG_DATATYPE_FLOAT_LENGTH);                  \
-      PirAtE_ComType_Serialfunc.write(PirAtE_TRANSMIT_SEPERATOR);                         \
-      PirAtE_ComType_Serialfunc.write(PirAtE_MSG_DATATYPE_DOUBLE);                        \
-      PirAtE_ComType_Serialfunc.write(PirAtE_MSG_DATATYPE_DOUBLE_LENGTH);                 \
-      PirAtE_ComType_Serialfunc.write(PirAtE_TRANSMIT_SEPERATOR);                         \
-      PirAtE_ComType_Serialfunc.write(PirAtE_MSG_DATATYPE_BYTE);                          \
-      PirAtE_ComType_Serialfunc.write(PirAtE_MSG_DATATYPE_BYTE_LENGTH);                   \
-      PirAtE_ComType_Serialfunc.write(PirAtE_TRANSMIT_SEPERATOR);                         \
-      PirAtE_ComType_Serialfunc.write(PirAtE_MSG_DATATYPE_WORD);                          \
-      PirAtE_ComType_Serialfunc.write(PirAtE_MSG_DATATYPE_WORD_LENGTH);                   \
-      PirAtE_ComType_Serialfunc.write(PirAtE_TRANSMIT_SEPERATOR);                         \
-      PirAtE_ComType_Serialfunc.write(PirAtE_MSG_DATATYPE_BOOL);                          \
-      PirAtE_ComType_Serialfunc.write(PirAtE_MSG_DATATYPE_BOOL_LENGTH);                   \
-      PirAtE_ComType_Serialfunc.write(PirAtE_TRANSMIT_SEPERATOR);                         \
-      PirAtE_ComType_Serialfunc.write(PirAtE_MSG_DATATYPE_CHAR);                          \
-      PirAtE_ComType_Serialfunc.write(PirAtE_MSG_DATATYPE_CHAR_LENGTH);                   \
-      PirAtE_ComType_Serialfunc.write(PirAtE_TRANSMIT_SEPERATOR);                         \
-      PirAtE_ComType_Serialfunc.write(PirAtE_MSG_DATATYPE_STRING);                        \
-      PirAtE_ComType_Serialfunc.write(PirAtE_MSG_DATATYPE_STRING_MAXLENGTH);              \
-      PirAtE_ComType_Serialfunc.write(PirAtE_MSG_DELIMITER, PirAtE_MSG_DELIMITER_LENGTH); \
-      delay(1000);                                                                        \
+  #define PirAtE_START_COM()                                                                      \
+    {                                                                                             \
+      PirAtE_ComType_Serialfunc.begin(PirAtE_Serial_Baudrate);                                    \
+      delay(100);                                                                                 \
+      PirAtE_ComType_Serialfunc.write(PirAtE_SERIAL_START, PirAtE_SERIAL_START_LENGTH);           \
+      delay(100);                                                                                 \
+      PirAtE_ComType_Serialfunc.write(PirAtE_DATATYPE_INFO);                                      \
+      PirAtE_ComType_Serialfunc.print(PirAtE_Serial_Buffer_Size);                                 \
+      PirAtE_SEND_DATATYPEINFO(PirAtE_MSG_DATATYPE_INT, PirAtE_MSG_DATATYPE_INT_LENGTH);          \
+      PirAtE_SEND_DATATYPEINFO(PirAtE_MSG_DATATYPE_UINT, PirAtE_MSG_DATATYPE_UINT_LENGTH);        \
+      PirAtE_SEND_DATATYPEINFO(PirAtE_MSG_DATATYPE_LONG, PirAtE_MSG_DATATYPE_LONG_LENGTH);        \
+      PirAtE_SEND_DATATYPEINFO(PirAtE_MSG_DATATYPE_ULONG, PirAtE_MSG_DATATYPE_ULONG_LENGTH);      \
+      PirAtE_SEND_DATATYPEINFO(PirAtE_MSG_DATATYPE_FLOAT, PirAtE_MSG_DATATYPE_FLOAT_LENGTH);      \
+      PirAtE_SEND_DATATYPEINFO(PirAtE_MSG_DATATYPE_DOUBLE, PirAtE_MSG_DATATYPE_DOUBLE_LENGTH);    \
+      PirAtE_SEND_DATATYPEINFO(PirAtE_MSG_DATATYPE_BYTE, PirAtE_MSG_DATATYPE_BYTE_LENGTH);        \
+      PirAtE_SEND_DATATYPEINFO(PirAtE_MSG_DATATYPE_WORD, PirAtE_MSG_DATATYPE_WORD_LENGTH);        \
+      PirAtE_SEND_DATATYPEINFO(PirAtE_MSG_DATATYPE_BOOL, PirAtE_MSG_DATATYPE_BOOL_LENGTH);        \
+      PirAtE_SEND_DATATYPEINFO(PirAtE_MSG_DATATYPE_CHAR, PirAtE_MSG_DATATYPE_CHAR_LENGTH);        \
+      PirAtE_SEND_DATATYPEINFO(PirAtE_MSG_DATATYPE_STRING, PirAtE_MSG_DATATYPE_STRING_MAXLENGTH); \
+      PirAtE_ComType_Serialfunc.write(PirAtE_MSG_DELIMITER, PirAtE_MSG_DELIMITER_LENGTH);         \
+      delay(1000);                                                                                \
+    }
+
+    void PirAtE_SEND_DATATYPEINFO(char datatype, int dataSize)
+    {
+      PirAtE_ComType_Serialfunc.write(PirAtE_TRANSMIT_SEPERATOR);
+      PirAtE_ComType_Serialfunc.write(datatype);
+      PirAtE_ComType_Serialfunc.print(dataSize);
     }
 #endif
 
@@ -250,7 +237,7 @@ byte PirAtE_MSG_DELIMITER[PirAtE_MSG_DELIMITER_LENGTH] = {0xff, 'P', 'i', 'r', '
 #endif
 
 
-
+//TODO Name Change to Observe Variable
 #ifdef PirAtE_COM_OFF
  #define PirAtE_IS_NEW_DATA_TO_SEND(PirAtE_MSG_KEY) {}
  #define PirAtE_ADD_NEW_SENDMSG(...) 0;
@@ -472,7 +459,7 @@ byte PirAtE_MSG_DELIMITER[PirAtE_MSG_DELIMITER_LENGTH] = {0xff, 'P', 'i', 'r', '
     }
 #endif
 
-
+//TODO Name Change to Control Variable
 #ifdef PirAtE_COM_OFF
   #define PirAtE_ADD_NEW_RECEIVEMSG(Data_Name, Global_VariableAddress, PirAtE_MSG_DATATYPE, Default_Value, Max_Value, Min_Value) 0;
   #define PirAtE_ADD_NEW_STRING_RECEIVEMSG(Data_Name, Global_VariableAddress, StringBufferLength) 0;
