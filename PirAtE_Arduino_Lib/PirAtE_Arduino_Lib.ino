@@ -43,6 +43,6 @@ void loop()
     PirAtE_NEW_DATA_IS_READ(data3Key);
   }
   data2 = data4;
-  PirAtE_SEND_DEBUG_MAKRO("Loop");
+  //PirAtE_SEND_DEBUG_MAKRO("Loop");
   delay(20);
 }
