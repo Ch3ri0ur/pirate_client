@@ -390,80 +390,80 @@ byte PirAtE_MSG_DELIMITER[PirAtE_MSG_DELIMITER_LENGTH] = {0xff, 'P', 'i', 'r', '
   #define PirAtE_ISNEWDATATOSEND(msgID) (PirAtE_DATA_SEND_NEWDATA_AVAILABLE_MASK[msgID / 8] & 1 << (msgID % 8))
   #define PirAtE_REMOVENEWDATATOSEND(msgID) PirAtE_DATA_SEND_NEWDATA_AVAILABLE_MASK[msgID / 8] &= ~((byte)(1 << (msgID % 8)));
 
-  #define PirAtE_SENDMSGS_MAKRO()                                                                                                                                                     \
-    {                                                                                                                                                                                 \
-      unsigned long PirAtE_endTime = micros() + PirAtE_AllowedSendBlockTime_micros;                                                                                                   \
-      int startIndex = PirAtE_SEND_MSG_Index;                                                                                                                                         \
-      byte msgSend = 0;                                                                                                                                                               \
-      int tmpMsgSize = 0;                                                                                                                                                             \
-      do                                                                                                                                                                              \
-      {                                                                                                                                                                               \
-        if (PirAtE_SEND_MSG_Index != 0 || micros() > PirAtE_Time_of_next_Msg_Cycle)                                                                                                   \
-        {                                                                                                                                                                             \
-          if (PirAtE_SENDMODEOFMSGISAUTO(PirAtE_SEND_MSG_Index)|| PirAtE_ISNEWDATATOSEND(PirAtE_SEND_MSG_Index))                                                                      \
-          {                                                                                                                                                                           \
-            if(tmpMsgSize == 0)                                                                                                                                                       \
-            {                                                                                                                                                                         \
-              if (PirAtE_DATA_SEND_DATATYPE_MASK[PirAtE_SEND_MSG_Index] == PirAtE_MSG_DATATYPE_STRING)                                                                                \
-              {                                                                                                                                                                       \
-                while (PirAtE_DATA_SEND_ADDRESSES[PirAtE_SEND_MSG_Index][tmpMsgSize] != PirAtE_CHARARRAY_END && tmpMsgSize <= PirAtE_DATA_SEND_DATASIZE[PirAtE_SEND_MSG_Index])       \
-                {                                                                                                                                                                     \
-                  tmpMsgSize++;                                                                                                                                                       \
-                }                                                                                                                                                                     \
-                if (PirAtE_DATA_SEND_DATASIZE[PirAtE_SEND_MSG_Index] + 1 == tmpMsgSize)                                                                                               \
-                {                                                                                                                                                                     \
-                  PirAtE_DATA_SEND_ADDRESSES[PirAtE_SEND_MSG_Index][tmpMsgSize - 1] = PirAtE_CHARARRAY_END;                                                                           \
-                }                                                                                                                                                                     \
-                else if (tmpMsgSize == 0)                                                                                                                                             \
-                {                                                                                                                                                                     \
-                  tmpMsgSize = 1;                                                                                                                                                     \
-                  PirAtE_DATA_SEND_ADDRESSES[PirAtE_SEND_MSG_Index][0] = PirAtE_CHARARRAY_END;                                                                                        \
-                }                                                                                                                                                                     \
-              }                                                                                                                                                                       \
-              else                                                                                                                                                                    \
-              {                                                                                                                                                                       \
-                tmpMsgSize = PirAtE_DATA_SEND_DATASIZE[PirAtE_SEND_MSG_Index];                                                                                                        \
-              }                                                                                                                                                                       \
-            }                                                                                                                                                                         \
-            if (PirAtE_ComType_Serialfunc.availableForWrite() >= PirAtE_MSG_DELIMITER_LENGTH + PirAtE_MSG_DATA_OVERHEAD + tmpMsgSize)                                                 \
-            {                                                                                                                                                                         \
-              PirAtE_ComType_Serialfunc.write(PirAtE_DATA_SEND_DATATYPE_MASK[PirAtE_SEND_MSG_Index]);                                                                                 \
-              PirAtE_ComType_Serialfunc.write(PirAtE_SEND_MSG_Index + PirAtE_MSG_DATAID_OFFSET);                                                                                      \
-              PirAtE_ComType_Serialfunc.write(PirAtE_DATA_SEND_ADDRESSES[PirAtE_SEND_MSG_Index], tmpMsgSize);                                                                         \
-              tmpMsgSize = 0;                                                                                                                                                         \
-              msgSend++;                                                                                                                                                              \
-              PirAtE_REMOVENEWDATATOSEND(PirAtE_SEND_MSG_Index);                                                                                                                      \
-              PirAtE_SEND_MSG_Index++;                                                                                                                                                \
-              PirAtE_SEND_MSG_Index %= PirAtE_DEFINED_SEND_MSGS;                                                                                                                      \
-              PirAtE_Time_of_next_Msg_Cycle = micros() + PirAtE_SendMSGInterVal_micros;                                                                                               \
-            }                                                                                                                                                                         \
-            else                                                                                                                                                                      \
-            {                                                                                                                                                                         \
-              {                                                                                                                                                                       \
-              if(!PirAtE_AllowActiveWaitingOnSend)                                                                                                                                    \
-                break;                                                                                                                                                                \
-              }                                                                                                                                                                       \
-            }                                                                                                                                                                         \
-          }                                                                                                                                                                           \
-          else                                                                                                                                                                        \
-          {                                                                                                                                                                           \
-            PirAtE_SEND_MSG_Index++;                                                                                                                                                  \
-            PirAtE_SEND_MSG_Index %= PirAtE_DEFINED_SEND_MSGS;                                                                                                                        \
-          }                                                                                                                                                                           \
-        }                                                                                                                                                                             \
-        else                                                                                                                                                                          \
-        {                                                                                                                                                                             \
-          if (PirAtE_SEND_MSG_Index != 0 && micros() < PirAtE_Time_of_next_Msg_Cycle - PirAtE_SendMSGInterVal_micros)                                                                 \
-          {                                                                                                                                                                           \
-            PirAtE_Time_of_next_Msg_Cycle = micros() + PirAtE_SendMSGInterVal_micros;                                                                                                 \
-          }                                                                                                                                                                           \
-          break;                                                                                                                                                                      \
-        }                                                                                                                                                                             \
-      } while (micros() < PirAtE_endTime && micros() > PirAtE_endTime - PirAtE_AllowedSendBlockTime_micros && startIndex != PirAtE_SEND_MSG_Index);                                   \
-      if(msgSend>0)                                                                                                                                                                   \
-      {                                                                                                                                                                               \
-        PirAtE_ComType_Serialfunc.write(PirAtE_MSG_DELIMITER, PirAtE_MSG_DELIMITER_LENGTH);                                                                                           \
-      }                                                                                                                                                                               \
+  #define PirAtE_SENDMSGS_MAKRO()                                                                                                                                              \
+    {                                                                                                                                                                          \
+      unsigned long PirAtE_endTime = micros() + PirAtE_AllowedSendBlockTime_micros;                                                                                            \
+      int startIndex = PirAtE_SEND_MSG_Index;                                                                                                                                  \
+      byte msgSend = 0;                                                                                                                                                        \
+      int tmpMsgSize = 0;                                                                                                                                                      \
+      do                                                                                                                                                                       \
+      {                                                                                                                                                                        \
+        if (PirAtE_SEND_MSG_Index != 0 || micros() > PirAtE_Time_of_next_Msg_Cycle)                                                                                            \
+        {                                                                                                                                                                      \
+          if (PirAtE_SENDMODEOFMSGISAUTO(PirAtE_SEND_MSG_Index)|| PirAtE_ISNEWDATATOSEND(PirAtE_SEND_MSG_Index))                                                               \
+          {                                                                                                                                                                    \
+            if(tmpMsgSize == 0)                                                                                                                                                \
+            {                                                                                                                                                                  \
+              if (PirAtE_DATA_SEND_DATATYPE_MASK[PirAtE_SEND_MSG_Index] == PirAtE_MSG_DATATYPE_STRING)                                                                         \
+              {                                                                                                                                                                \
+                while (PirAtE_DATA_SEND_ADDRESSES[PirAtE_SEND_MSG_Index][tmpMsgSize] != PirAtE_CHARARRAY_END && tmpMsgSize <= PirAtE_DATA_SEND_DATASIZE[PirAtE_SEND_MSG_Index])\
+                {                                                                                                                                                              \
+                  tmpMsgSize++;                                                                                                                                                \
+                }                                                                                                                                                              \
+                if (PirAtE_DATA_SEND_DATASIZE[PirAtE_SEND_MSG_Index] + 1 == tmpMsgSize)                                                                                        \
+                {                                                                                                                                                              \
+                  PirAtE_DATA_SEND_ADDRESSES[PirAtE_SEND_MSG_Index][tmpMsgSize - 1] = PirAtE_CHARARRAY_END;                                                                    \
+                }                                                                                                                                                              \
+                else if (tmpMsgSize == 0)                                                                                                                                      \
+                {                                                                                                                                                              \
+                  tmpMsgSize = 1;                                                                                                                                              \
+                  PirAtE_DATA_SEND_ADDRESSES[PirAtE_SEND_MSG_Index][0] = PirAtE_CHARARRAY_END;                                                                                 \
+                }                                                                                                                                                              \
+              }                                                                                                                                                                \
+              else                                                                                                                                                             \
+              {                                                                                                                                                                \
+                tmpMsgSize = PirAtE_DATA_SEND_DATASIZE[PirAtE_SEND_MSG_Index];                                                                                                 \
+              }                                                                                                                                                                \
+            }                                                                                                                                                                  \
+            if (PirAtE_ComType_Serialfunc.availableForWrite() >= PirAtE_MSG_DELIMITER_LENGTH + PirAtE_MSG_DATA_OVERHEAD + tmpMsgSize)                                          \
+            {                                                                                                                                                                  \
+              PirAtE_ComType_Serialfunc.write(PirAtE_DATA_SEND_DATATYPE_MASK[PirAtE_SEND_MSG_Index]);                                                                          \
+              PirAtE_ComType_Serialfunc.write(PirAtE_SEND_MSG_Index + PirAtE_MSG_DATAID_OFFSET);                                                                               \
+              PirAtE_ComType_Serialfunc.write(PirAtE_DATA_SEND_ADDRESSES[PirAtE_SEND_MSG_Index], tmpMsgSize);                                                                  \
+              tmpMsgSize = 0;                                                                                                                                                  \
+              msgSend++;                                                                                                                                                       \
+              PirAtE_REMOVENEWDATATOSEND(PirAtE_SEND_MSG_Index);                                                                                                               \
+              PirAtE_SEND_MSG_Index++;                                                                                                                                         \
+              PirAtE_SEND_MSG_Index %= PirAtE_DEFINED_SEND_MSGS;                                                                                                               \
+              PirAtE_Time_of_next_Msg_Cycle = micros() + PirAtE_SendMSGInterVal_micros;                                                                                        \
+            }                                                                                                                                                                  \
+            else                                                                                                                                                               \
+            {                                                                                                                                                                  \
+              {                                                                                                                                                                \
+              if(!PirAtE_AllowActiveWaitingOnSend)                                                                                                                             \
+                break;                                                                                                                                                         \
+              }                                                                                                                                                                \
+            }                                                                                                                                                                  \
+          }                                                                                                                                                                    \
+          else                                                                                                                                                                 \
+          {                                                                                                                                                                    \
+            PirAtE_SEND_MSG_Index++;                                                                                                                                           \
+            PirAtE_SEND_MSG_Index %= PirAtE_DEFINED_SEND_MSGS;                                                                                                                 \
+          }                                                                                                                                                                    \
+        }                                                                                                                                                                      \
+        else                                                                                                                                                                   \
+        {                                                                                                                                                                      \
+          if (PirAtE_SEND_MSG_Index != 0 && micros() < PirAtE_Time_of_next_Msg_Cycle - PirAtE_SendMSGInterVal_micros)                                                          \
+          {                                                                                                                                                                    \
+            PirAtE_Time_of_next_Msg_Cycle = micros() + PirAtE_SendMSGInterVal_micros;                                                                                          \
+          }                                                                                                                                                                    \
+          break;                                                                                                                                                               \
+        }                                                                                                                                                                      \
+      } while (micros() < PirAtE_endTime && micros() > PirAtE_endTime - PirAtE_AllowedSendBlockTime_micros && startIndex != PirAtE_SEND_MSG_Index);                            \
+      if(msgSend>0)                                                                                                                                                            \
+      {                                                                                                                                                                        \
+        PirAtE_ComType_Serialfunc.write(PirAtE_MSG_DELIMITER, PirAtE_MSG_DELIMITER_LENGTH);                                                                                    \
+      }                                                                                                                                                                        \
     }
 #endif
 
@@ -630,8 +630,8 @@ byte PirAtE_MSG_DELIMITER[PirAtE_MSG_DELIMITER_LENGTH] = {0xff, 'P', 'i', 'r', '
         }                                                                                                                                                                                               \
         else                                                                                                                                                                                            \
         {                                                                                                                                                                                               \
-          PirAte_NoData = 0;                                                                                                                                                                            \
           msgID -= PirAtE_MSG_DATAID_OFFSET;                                                                                                                                                            \
+          PirAte_NoData = 0;                                                                                                                                                                            \
           receivedBytesCount = 0;                                                                                                                                                                       \
           if (msgID >= 0 && msgID < PirAtE_DEFINED_RECEIVE_MSGS)                                                                                                                                        \
           {                                                                                                                                                                                             \
@@ -725,7 +725,7 @@ byte PirAtE_MSG_DELIMITER[PirAtE_MSG_DELIMITER_LENGTH] = {0xff, 'P', 'i', 'r', '
             PirAtE_ComType_Serialfunc.write(PirAtE_REQUEST_DATA);                                                                                                                                       \
             PirAtE_ComType_Serialfunc.write(PirAtE_MSG_DELIMITER, PirAtE_MSG_DELIMITER_LENGTH);                                                                                                         \
             PirAtE_Time_of_next_Request = micros() + PirAtE_RequestInterVal_micros;                                                                                                                     \
-            PirAte_NoData = !PirAte_NoData;                                                                                                                                                             \
+            PirAte_NoData = 1;                                                                                                                                                                          \
           }                                                                                                                                                                                             \
         }                                                                                                                                                                                               \
         else                                                                                                                                                                                            \
