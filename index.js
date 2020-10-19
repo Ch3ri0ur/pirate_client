@@ -37,7 +37,6 @@ findArduino()
         const parser = readyparser.pipe(
             new Delimiter({ delimiter: new Uint8Array([0xff, 0x50, 0x69, 0x72, 0x41, 0x74, 0x45, 0x0a]) }),
         );
-        // TODO FLUSH THE STREAM TILL DATATYPESIZES
         parser.on('data', (buffer) => {
             switch (buffer[0]) {
                 case 82: // R Request Data
@@ -304,8 +303,8 @@ app.get('/stream', (req, res) => {
 });
 
 var intervalID = setInterval(() => {
-    //   console.log(clientSendBuffer);
     if (Object.entries(clientSendBuffer).length !== 0) {
+        console.log('Sending now.');
         for (let [key, res] of Object.entries(clients)) {
             res.write('event: message\n');
             res.write('data: ' + JSON.stringify(clientSendBuffer) + '\n\n');

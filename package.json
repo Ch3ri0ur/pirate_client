@@ -1,7 +1,7 @@
 {
-    "name": "stos",
-    "version": "0.1.0",
-    "description": "serial to socketio",
+    "name": "pirate-module",
+    "version": "0.5.0",
+    "description": "Pirate Bridge, Hook, Spyglass",
     "main": "index.js",
     "scripts": {
         "start": "node index.js",
